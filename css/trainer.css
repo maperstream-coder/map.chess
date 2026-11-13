@@ -1,0 +1,43 @@
+/* maper.chess — тренажёр во вкладке «Обучение» (js/trainer.js) */
+.tr-strip { margin: 0 0 18px; }
+.tr-strip-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.tr-strip-h b { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: var(--ink); }
+.tr-strip-h .ic { color: var(--violet-2); }
+.tr-strip-h .btn { padding: 6px 12px; font-size: 13px; }
+.tr-row { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 8px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.tr-row::-webkit-scrollbar { display: none; }
+.tr-card { position: relative; flex: 0 0 auto; scroll-snap-align: start; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; min-width: 118px; padding: 12px 14px; border-radius: var(--r-md); border: 1px solid var(--line-2); background: linear-gradient(160deg, var(--panel-2), var(--panel)); color: var(--ink); font: inherit; cursor: pointer; transition: transform .15s, border-color .15s, background .15s; }
+.tr-card:hover { border-color: var(--violet-2); transform: translateY(-2px); }
+.tr-card:active { transform: scale(.97); }
+.tr-card b { font-size: 14px; line-height: 1.2; }
+.tr-card small { color: var(--ink-dim); font-size: 12.5px; line-height: 1.35; }
+.tr-card em { font-style: normal; font-size: 12px; color: var(--violet-2); margin-top: auto; display: inline-flex; align-items: center; gap: 4px; }
+.tr-ic { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--tint); color: var(--violet-2); }
+.tr-card.big { min-width: 0; width: 100%; padding: 16px; }
+.tr-badge { position: absolute; top: 8px; right: 8px; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--flame); color: #1b1206; font: 700 12px/20px var(--font-ui); text-align: center; font-style: normal; }
+.tr-badge.ok { background: var(--ok); }
+.tr-lead { color: var(--ink-dim); font-size: 14px; line-height: 1.5; margin: 6px 2px 14px; max-width: 620px; }
+.tr-hub { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.tr-hub.two { grid-template-columns: repeat(2, 1fr); max-width: 520px; }
+.tr-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.tr-chip { padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--panel); color: var(--ink-dim); font: 600 14px var(--font-ui); cursor: pointer; }
+.tr-chip.on { background: var(--tint-2); border-color: var(--violet-2); color: var(--violet-3); }
+
+.tr-hud { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.tr-pill { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 12px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line-2); font: 700 15px var(--font-ui); color: var(--ink); font-variant-numeric: tabular-nums; }
+.tr-pill.gold { color: var(--gold); border-color: rgba(227, 191, 124, .35); }
+.tr-pill.hot { color: var(--flame); border-color: rgba(243, 165, 96, .4); }
+.tr-pill.low { color: var(--danger); border-color: rgba(238, 129, 149, .5); animation: trPulse .6s ease-in-out infinite alternate; }
+.tr-pill[hidden] { display: none; }
+@keyframes trPulse { to { transform: scale(1.06); } }
+.tr-bar { height: 6px; border-radius: 3px; background: var(--panel-3); overflow: hidden; margin-bottom: 10px; }
+.tr-bar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--violet), var(--violet-2)); transition: width .2s linear; }
+.tr-target { display: grid; place-items: center; height: 96px; margin: 6px 0 4px; border-radius: var(--r-md); background: var(--tint); border: 1px dashed var(--violet-2); color: var(--violet-3); font: 700 54px/1 var(--font-display); letter-spacing: 2px; }
+.tr-note { min-height: 20px; margin: 4px 0 8px; font-size: 14px; line-height: 1.4; color: var(--ink-dim); }
+.tr-note.warn { color: var(--flame); background: rgba(243, 165, 96, .08); border: 1px solid rgba(243, 165, 96, .3); padding: 8px 12px; border-radius: var(--r-sm); }
+.tr-nocoord .bc-layer { display: none !important; }
+@media (max-width: 640px) {
+  .tr-hub { grid-template-columns: 1fr; }
+  .tr-hub.two { grid-template-columns: 1fr 1fr; }
+  .tr-target { height: 78px; font-size: 44px; }
+}

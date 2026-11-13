@@ -1,0 +1,204 @@
+/* maper.chess — brand.css
+   Новый фирменный стиль под логотип (знак «M + шахматный король», фиолетовый на чёрном).
+   Подключается ПОСЛЕДНИМ (после redesign.css). Содержит:
+   1) палитру под логотип; 2) логотип в шапке и боковом меню; 3) переделанную главную для ПК (≥1024px). */
+
+/* ============================== 1. ПАЛИТРА ============================== */
+:root {
+  --brand-1: #dcc6ff;   /* светлый блик знака */
+  --brand-2: #b98bf5;   /* основной светлый фиолетовый */
+  --brand-3: #8e55e6;   /* основной фиолетовый */
+  --brand-4: #5f2fb8;   /* глубокий фиолетовый */
+  --bg: #0b0910;
+  --bg-2: #110d18;
+  --panel: #16121e;
+  --panel-2: #1d1827;
+  --panel-3: #2a2437;
+  --violet: #8e55e6;
+  --violet-2: #b98bf5;
+  --violet-3: #dcc6ff;
+  --violet-deep: #5f2fb8;
+  --tint: rgba(142, 85, 230, .15);
+  --tint-2: rgba(142, 85, 230, .24);
+  --violet-grad: linear-gradient(135deg, #b98bf5 0%, #8e55e6 48%, #6a35c8 100%);
+}
+body {
+  background:
+    radial-gradient(900px 520px at 85% -10%, rgba(142, 85, 230, .14), transparent 60%),
+    radial-gradient(700px 480px at -8% 108%, rgba(95, 47, 184, .12), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+::selection { background: rgba(142, 85, 230, .4); color: #fff; }
+.btn-primary { background: var(--violet-grad); box-shadow: 0 10px 26px -10px rgba(142, 85, 230, .8), inset 0 1px 0 rgba(255, 255, 255, .22); }
+.btn-primary:hover { filter: brightness(1.08); }
+
+/* ============================== 2. ЛОГОТИП ============================== */
+/* шапка (телефон): знак без плитки */
+.brand { gap: 9px; }
+.brand-logo { width: 34px; height: 34px; border-radius: 0 !important; object-fit: contain !important; background: none !important; filter: drop-shadow(0 0 10px rgba(142, 85, 230, .55)); }
+.brand-name { font-family: var(--font-accent); font-weight: 600; letter-spacing: -.03em; }
+
+@media (min-width: 1024px) {
+  .phone-frame {
+    background:
+      radial-gradient(900px 520px at 78% -8%, rgba(142, 85, 230, .16), transparent 62%),
+      radial-gradient(700px 520px at 0% 100%, rgba(95, 47, 184, .14), transparent 62%),
+      var(--bg) !important;
+  }
+
+  /* боковое меню: знак + название */
+  .bottom-nav { background: linear-gradient(180deg, #15101d, #0f0b15) !important; padding-top: 92px !important; }
+  .bottom-nav::before {
+    content: "maper.chess"; left: 80px !important; top: 30px !important; padding-left: 0 !important; background: none !important;
+    font: 600 20px/28px var(--font-accent); letter-spacing: -.035em; color: var(--ink);
+  }
+  .bottom-nav::after {
+    content: ""; position: absolute; left: 20px; top: 20px; width: 48px; height: 48px; border-radius: 0;
+    background: url(../assets/logo-mark.png?v=2) center / contain no-repeat !important;
+    filter: drop-shadow(0 0 12px rgba(142, 85, 230, .6)); box-shadow: none !important;
+  }
+  .nav-btn.active { background: linear-gradient(90deg, rgba(142, 85, 230, .26), rgba(142, 85, 230, .1)) !important; box-shadow: inset 0 0 0 1px rgba(185, 139, 245, .3) !important; color: var(--violet-3); }
+  .nav-btn:hover:not(.active) { background: rgba(255, 255, 255, .045); }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .bottom-nav::before { left: 72px !important; font-size: 18px; }
+}
+
+/* ============================== 3. ГЛАВНАЯ ДЛЯ ПК ============================== */
+/* на телефоне и планшете новые блоки скрыты — мобильная главная прежняя */
+#brand-hero, #brand-feats { display: none; }
+
+@media (min-width: 1024px) {
+  #brand-hero { display: grid; }
+  #brand-feats { display: grid; }
+
+  /* сетка: баннер → 4 раздела → (прогресс | огонёк) → установка → Telegram */
+  body #view-home.active,
+  body #view-home.active.home-new,
+  body #view-home.active.home-ret,
+  body #view-home.active.home-ret:has(#home-install > *) {
+    display: grid !important; gap: 22px !important; align-items: stretch !important; align-content: start;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr) !important;
+    grid-template-areas: "bhero bhero" "bfeat bfeat" "top streak" "inst inst" "tg tg" !important;
+  }
+  body #view-home.active.home-new,
+  body #view-home.active.home-new:has(#home-install > *) {
+    grid-template-areas: "bhero bhero" "bfeat bfeat" "tg tg" !important;
+  }
+  #view-home > #brand-hero { grid-area: bhero; }
+  #view-home > #brand-feats { grid-area: bfeat; }
+  /* старые блоки, которые теперь дублируют баннер */
+  #view-home.home-new > .hero,
+  #view-home.home-new > #home-top,
+  #view-home > .board-deco, #view-home > #home-deco, #view-home > .stats-row,
+  #view-home > #home-more, #view-home > #continue-card { display: none !important; }
+  #view-home.home-ret > #home-top { grid-area: top; }
+  #view-home.home-ret > #streak-card { grid-area: streak; }
+
+  /* ---------- баннер ---------- */
+  .bh {
+    position: relative; isolation: isolate; overflow: hidden; align-items: center;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); min-height: 400px; padding: 54px 60px;
+    border-radius: 30px; border: 1px solid rgba(185, 139, 245, .26);
+    background:
+      radial-gradient(620px 380px at 80% 42%, rgba(142, 85, 230, .45), transparent 70%),
+      radial-gradient(440px 320px at 0% 100%, rgba(95, 47, 184, .38), transparent 70%),
+      linear-gradient(135deg, #1d1230 0%, #130d1f 55%, #0f0a17 100%);
+    box-shadow: 0 40px 80px -40px rgba(95, 47, 184, .7), inset 0 1px 0 rgba(255, 255, 255, .07);
+  }
+  /* шахматный пол, тающий к левому краю */
+  .bh-bg {
+    position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .5;
+    background: conic-gradient(rgba(255, 255, 255, .05) 25%, transparent 0 50%, rgba(255, 255, 255, .05) 0 75%, transparent 0) 0 0 / 88px 88px;
+    -webkit-mask: radial-gradient(70% 100% at 82% 50%, #000 0%, transparent 72%);
+            mask: radial-gradient(70% 100% at 82% 50%, #000 0%, transparent 72%);
+  }
+  .bh-copy { position: relative; z-index: 2; max-width: 600px; }
+  .bh-kicker {
+    display: inline-flex; align-items: center; gap: 9px; padding: 8px 16px 8px 13px; border-radius: 999px;
+    font: 700 12.5px/1 var(--font-ui); letter-spacing: .02em; color: var(--violet-3);
+    background: rgba(142, 85, 230, .16); border: 1px solid rgba(185, 139, 245, .32);
+  }
+  .bh-kicker i { width: 7px; height: 7px; border-radius: 50%; background: var(--brand-2); box-shadow: 0 0 0 4px rgba(185, 139, 245, .2), 0 0 12px var(--brand-2); }
+  .bh-title {
+    margin: 20px 0 0; font-family: var(--font-accent); font-weight: 600; font-size: clamp(38px, 3.5vw, 54px);
+    line-height: 1.06; letter-spacing: -.04em; color: var(--ink); text-wrap: balance;
+  }
+  .bh-title em {
+    font-style: normal; background: linear-gradient(90deg, var(--brand-1), var(--brand-2) 50%, var(--brand-3));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+  }
+  .bh-sub { margin: 18px 0 30px; max-width: 48ch; font-size: 17px; line-height: 1.55; color: var(--ink-dim); }
+  .bh-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .bh-btn { display: inline-flex; align-items: center; gap: 10px; padding: 16px 30px !important; font-size: 16px !important; font-weight: 700; border-radius: 15px !important; cursor: pointer; }
+  .bh-btn svg { width: 19px; height: 19px; flex: none; }
+  .bh-btn[data-hp="first"] svg, .bh-btn[data-hp="continue"] svg { fill: currentColor; stroke-width: 1.4; }
+  .bh-btn.btn-ghost { background: rgba(255, 255, 255, .04); border: 1px solid rgba(185, 139, 245, .32); color: var(--ink); }
+  .bh-btn.btn-ghost:hover { background: rgba(142, 85, 230, .16); border-color: rgba(185, 139, 245, .6); }
+  .bh-chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 30px 0 0; padding: 0; list-style: none; }
+  .bh-chips li {
+    padding: 9px 15px; border-radius: 999px; font: 600 13px/1 var(--font-ui); color: var(--ink-dim);
+    background: rgba(255, 255, 255, .04); border: 1px solid var(--line-2);
+  }
+
+  /* ---------- сцена со знаком ---------- */
+  .bh-stage { position: relative; z-index: 1; justify-self: center; align-self: center; width: min(400px, 100%); aspect-ratio: 1; pointer-events: none; user-select: none; }
+  .bh-halo { position: absolute; inset: 4%; border-radius: 50%; background: radial-gradient(circle, rgba(185, 139, 245, .55) 0%, rgba(142, 85, 230, .28) 38%, transparent 68%); filter: blur(14px); animation: bhPulse 5.5s ease-in-out infinite; }
+  .bh-ring { position: absolute; border-radius: 50%; border: 1.5px dashed rgba(185, 139, 245, .38); }
+  .bh-ring.r1 { inset: 3%; animation: bhSpin 60s linear infinite; }
+  .bh-ring.r2 { inset: 17%; border-style: solid; border-color: rgba(185, 139, 245, .16); animation: bhSpin 90s linear infinite reverse; }
+  .bh-mark {
+    position: absolute; inset: 11%; width: 78%; height: 78%; object-fit: contain;
+    filter: drop-shadow(0 24px 38px rgba(95, 47, 184, .7)) drop-shadow(0 0 26px rgba(142, 85, 230, .5));
+    animation: bhFloat 6.5s ease-in-out infinite;
+  }
+  .bh-g { position: absolute; font-size: 34px; line-height: 1; color: var(--brand-2); opacity: .5; text-shadow: 0 0 18px rgba(185, 139, 245, .7); font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", "Apple Symbols", "DejaVu Sans", sans-serif; animation: bhFloat 7s ease-in-out infinite; }
+  .bh-g.g1 { left: 2%; top: 20%; }
+  .bh-g.g2 { right: 3%; top: 10%; font-size: 40px; animation-delay: -2s; }
+  .bh-g.g3 { left: 8%; bottom: 14%; font-size: 30px; animation-delay: -4s; }
+  .bh-g.g4 { right: 6%; bottom: 18%; font-size: 36px; animation-delay: -1s; }
+  @keyframes bhFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @keyframes bhSpin { to { transform: rotate(360deg); } }
+  @keyframes bhPulse { 0%, 100% { opacity: .75; transform: scale(.96); } 50% { opacity: 1; transform: scale(1.04); } }
+
+  /* ---------- карточки разделов ---------- */
+  .bf { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .bf-card {
+    position: relative; display: flex; align-items: center; gap: 15px; width: 100%; padding: 20px 20px; text-align: left; cursor: pointer;
+    font: inherit; color: var(--ink); border-radius: 20px; border: 1px solid var(--line-2);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .012)), var(--panel);
+    box-shadow: 0 14px 30px -20px rgba(0, 0, 0, .9);
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
+  }
+  .bf-card:hover { transform: translateY(-4px); border-color: rgba(185, 139, 245, .5); box-shadow: 0 22px 40px -20px rgba(95, 47, 184, .65); background: linear-gradient(180deg, rgba(142, 85, 230, .14), rgba(142, 85, 230, .03)), var(--panel); }
+  .bf-card:active { transform: translateY(-1px); }
+  .bf-card:focus-visible { outline: 2px solid var(--brand-2); outline-offset: 3px; }
+  .bf-ico { flex: none; display: grid; place-items: center; width: 50px; height: 50px; border-radius: 16px; color: var(--brand-1); background: linear-gradient(145deg, rgba(185, 139, 245, .28), rgba(95, 47, 184, .2)); border: 1px solid rgba(185, 139, 245, .3); }
+  .bf-ico svg { width: 24px; height: 24px; }
+  .bf-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .bf-body b { font-size: 16px; font-weight: 700; letter-spacing: -.01em; }
+  .bf-body small { font-size: 12.5px; line-height: 1.35; color: var(--ink-dim); }
+  .bf-go { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: var(--ink-dim); background: rgba(255, 255, 255, .05); transition: transform .18s ease, color .18s ease, background .18s ease; }
+  .bf-go svg { width: 15px; height: 15px; }
+  .bf-card:hover .bf-go { transform: translateX(3px); color: #fff; background: var(--brand-3); }
+
+  /* ---------- нижние блоки: подгоняем под стиль ---------- */
+  #view-home .hp-me, #view-home .hp-daily, #view-home .streak-card.sk { border-color: rgba(185, 139, 245, .2); }
+  #view-home .hp-xp i { background: var(--violet-grad); }
+  #view-home .tg-card { margin: 0; }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .bh { padding: 42px 40px; min-height: 360px; }
+  .bf { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bh-stage { width: min(330px, 100%); }
+}
+@media (min-width: 1600px) {
+  .bh { min-height: 440px; padding: 60px 72px; }
+  .bh-title { font-size: 58px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bh-halo, .bh-ring, .bh-mark, .bh-g { animation: none !important; }
+  .bf-card, .bf-go { transition: none; }
+}

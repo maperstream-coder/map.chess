@@ -1,0 +1,281 @@
+/* maper.chess — play.css: «Игры», панель партии, поединок, чат.
+   Подключается ПОСЛЕДНИМ (после shell.css). Использует токены styles.css (графит + фиолетовый + золото). */
+
+.gp-bar[hidden], .gp-goal[hidden], .jump-current[hidden], .tier-banner[hidden], .gh-badge[hidden], .gp-think[hidden] { display: none !important; }
+
+/* ================= УРОВНИ: баннер яруса ================= */
+.tier-banner {
+  --tier: #a99cf0;
+  margin: 0 0 14px; padding: 14px 16px 15px; border-radius: var(--r-md);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--tier) 14%, transparent), transparent 70%), var(--panel);
+  border: 1px solid color-mix(in srgb, var(--tier) 32%, var(--line));
+}
+.tb-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.tb-top b { font: 600 17px var(--font-display); color: var(--ink); }
+.tb-top span { font-size: 12px; font-weight: 700; color: var(--tier); }
+.tier-banner p { margin: 6px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-dim); }
+.tb-bar { height: 5px; margin-top: 11px; border-radius: 5px; overflow: hidden; background: rgba(255, 255, 255, .07); }
+.tb-bar i { display: block; height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--violet-deep), var(--tier)); transition: width .4s ease; }
+
+/* ================= УРОВНИ: карточки ================= */
+.lv-card { gap: 10px; min-height: 148px; }
+.lc-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.lc-now {
+  padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 800; letter-spacing: .02em;
+  color: var(--violet-3); background: var(--tint-2); border: 1px solid rgba(185, 139, 245, .4);
+}
+.lc-bot { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.lc-ava {
+  flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, rgba(255, 255, 255, .1), rgba(255, 255, 255, .02) 70%), var(--panel-2);
+  border: 1px solid var(--line-2);
+}
+.lc-ava svg { width: 76%; height: 76%; }
+.lc-names { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.lc-names .level-name { line-height: 1.2; }
+.lc-names small { font-size: 11px; font-weight: 600; color: var(--ink-dim); line-height: 1.25; }
+.lc-goal {
+  display: flex; align-items: flex-start; gap: 7px; font-size: 11px; font-weight: 600; line-height: 1.3; color: var(--ink-dim);
+}
+.lc-goal i { flex: none; width: 11px; height: 11px; margin-top: 2px; border-radius: 50%; border: 2px solid var(--gold); box-shadow: inset 0 0 0 2px var(--panel); background: var(--gold); opacity: .85; }
+.lc-play { color: var(--violet-2); font-weight: 800; }
+.lv-card .level-meta { margin-top: auto; }
+.level-locked .lc-ava { opacity: .6; filter: grayscale(1); }
+
+.level-current {
+  border-color: rgba(185, 139, 245, .6) !important;
+  background: linear-gradient(160deg, rgba(142, 85, 230, .16), var(--panel) 70%) !important;
+  box-shadow: 0 0 0 1px rgba(185, 139, 245, .25), 0 14px 30px -16px rgba(142, 85, 230, .7) !important;
+}
+.jump-pulse { animation: jumpPulse 1.1s ease 2; }
+@keyframes jumpPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(185, 139, 245, 0); transform: none; }
+  40% { box-shadow: 0 0 0 7px rgba(185, 139, 245, .35); transform: scale(1.025); }
+}
+
+/* ================= кнопка «к текущему уровню» ================= */
+.jump-current {
+  position: sticky; bottom: 14px; z-index: 6; display: flex; align-items: center; gap: 9px;
+  width: max-content; max-width: 100%; margin: 18px 0 0 auto; padding: 11px 16px 11px 14px;
+  border: 1px solid rgba(185, 139, 245, .5); border-radius: 999px; cursor: pointer;
+  font: 800 13px var(--font-ui); color: #fff;
+  background: linear-gradient(135deg, #8173f4, #6354e0);
+  box-shadow: 0 14px 30px -10px rgba(99, 84, 224, .85), inset 0 1px 0 rgba(255, 255, 255, .22);
+  animation: jumpIn .3s cubic-bezier(.2, 1.2, .4, 1);
+  transition: transform .12s ease, filter .15s ease;
+}
+.jump-current:hover { filter: brightness(1.1); }
+.jump-current:active { transform: scale(.95); }
+.jump-current svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.jump-dir {
+  font-style: normal; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%;
+  font-size: 14px; background: rgba(255, 255, 255, .18);
+}
+@keyframes jumpIn { from { opacity: 0; transform: translateY(12px) scale(.9); } to { opacity: 1; transform: none; } }
+
+/* ================= ПАРТИЯ: шапка, статус ================= */
+.gh-badge {
+  margin-left: auto; padding: 5px 11px; border-radius: 999px; font-size: 11px; font-weight: 800; white-space: nowrap;
+  color: var(--gold); background: rgba(227, 191, 124, .1); border: 1px solid rgba(227, 191, 124, .35);
+}
+.game-status {
+  display: flex; align-items: center; gap: 10px; min-height: 42px; margin: 10px 0 12px; padding: 10px 14px;
+  border-radius: 14px; font-size: 13.5px; font-weight: 700; line-height: 1.35; color: var(--ink);
+  background: var(--panel); border: 1px solid var(--line);
+}
+.gs-dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--violet-2); box-shadow: 0 0 0 3px rgba(142, 85, 230, .2); }
+.gs-dot.wait, .dg-status:not(.mine) .gs-dot { background: var(--gold); box-shadow: 0 0 0 3px rgba(227, 191, 124, .18); animation: gsPulse 1.2s ease-in-out infinite; }
+.dg-status.mine .gs-dot { background: var(--ok); box-shadow: 0 0 0 3px rgba(114, 214, 163, .2); animation: gsPulse 1.6s ease-in-out infinite; }
+.dg-status.mine { border-color: rgba(114, 214, 163, .35); }
+@keyframes gsPulse { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+
+/* ================= ПАРТИЯ: плашки игроков ================= */
+.gp-bar {
+  display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 8px; border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .01)), var(--panel);
+  border: 1px solid var(--line); transition: border-color .2s ease, box-shadow .2s ease;
+}
+.gp-opp { margin-bottom: 10px; }
+.gp-me { margin: 10px 0 12px; }
+.gp-bar.is-thinking, .gp-bar.active { border-color: rgba(185, 139, 245, .5); box-shadow: 0 0 0 1px rgba(185, 139, 245, .18), 0 10px 24px -16px rgba(142, 85, 230, .8); }
+.gp-ava {
+  --tier: #a99cf0;
+  flex: none; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; overflow: hidden;
+  font: 700 17px var(--font-display); color: var(--ink);
+  background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--tier) 32%, transparent), transparent 75%), var(--panel-2);
+  border: 1px solid color-mix(in srgb, var(--tier) 45%, var(--line-2));
+}
+.gp-ava svg { width: 78%; height: 78%; }
+.gp-ava-me { --tier: #e3bf7c; }
+.gp-who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.gp-who b { font-size: 14px; font-weight: 800; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+.gp-who small { font-size: 11px; font-weight: 600; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+.gp-cap { flex: 1; min-width: 0; min-height: 24px; display: flex; align-items: center; justify-content: flex-end; overflow: hidden; }
+.gp-cp { display: inline-flex; flex: none; width: 21px; height: 21px; margin-left: -8px; }
+.gp-cp:first-child { margin-left: 0; }
+.gp-cp svg { width: 100%; height: 100%; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .55)); }
+.gp-adv { margin-left: 8px; font: 800 12px var(--font-ui); font-style: normal; color: var(--ok); font-variant-numeric: tabular-nums; }
+.gp-think { display: inline-flex; gap: 4px; align-items: center; padding: 0 4px; }
+.gp-think i { width: 6px; height: 6px; border-radius: 50%; background: var(--violet-2); animation: gpDot 1s ease-in-out infinite; }
+.gp-think i:nth-child(2) { animation-delay: .15s; }
+.gp-think i:nth-child(3) { animation-delay: .3s; }
+@keyframes gpDot { 0%, 80%, 100% { opacity: .25; transform: scale(.8); } 40% { opacity: 1; transform: scale(1.15); } }
+
+/* режимы: в задачах и игре с другом нет соперника-персонажа */
+#view-game[data-mode="puzzle"] .gp-bar, #view-game[data-mode="friend"] .gp-bar,
+#view-game[data-mode="friend"] .gp-goal { display: none; }
+#view-game[data-mode="puzzle"] .board-wrap, #view-game[data-mode="friend"] .board-wrap { margin-top: 2px; }
+
+/* ================= цель партии / задача ================= */
+.gp-goal {
+  display: flex; align-items: center; gap: 12px; margin: 0 0 12px; padding: 12px 14px; border-radius: 16px;
+  background: linear-gradient(135deg, rgba(227, 191, 124, .09), transparent 70%), var(--panel);
+  border: 1px solid rgba(227, 191, 124, .28);
+}
+.gp-goal.ok { border-color: rgba(114, 214, 163, .5); background: linear-gradient(135deg, rgba(114, 214, 163, .1), transparent 70%), var(--panel); }
+.gp-goal.fail { border-color: rgba(238, 129, 149, .4); opacity: .8; }
+.gp-goal.puzzle { border-color: rgba(185, 139, 245, .35); background: linear-gradient(135deg, rgba(142, 85, 230, .12), transparent 70%), var(--panel); }
+.gg-ico {
+  flex: none; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px;
+  color: var(--gold); background: rgba(227, 191, 124, .1); border: 1px solid rgba(227, 191, 124, .3);
+}
+.gp-goal.puzzle .gg-ico { color: var(--violet-2); background: var(--tint); border-color: rgba(185, 139, 245, .35); }
+.gp-goal.ok .gg-ico { color: var(--ok); background: rgba(114, 214, 163, .1); border-color: rgba(114, 214, 163, .4); }
+.gp-goal.fail .gg-ico { color: var(--danger); background: rgba(238, 129, 149, .1); border-color: rgba(238, 129, 149, .35); }
+.gg-ico svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.gg-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.gg-body small { font-size: 10.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint); }
+.gg-body b { font-size: 13px; font-weight: 700; line-height: 1.3; color: var(--ink); }
+.gg-bar { display: block; height: 4px; margin-top: 4px; border-radius: 4px; overflow: hidden; background: rgba(255, 255, 255, .08); }
+.gg-bar u { display: block; height: 100%; border-radius: 4px; text-decoration: none; background: linear-gradient(90deg, #c9a45a, var(--gold)); transition: width .3s ease; }
+.gp-goal.ok .gg-bar u { background: var(--ok); }
+.gp-goal.fail .gg-bar u { background: var(--danger); }
+.gg-prog { flex: none; font: 800 14px var(--font-ui); color: var(--gold); font-variant-numeric: tabular-nums; }
+.gp-goal.ok .gg-prog { color: var(--ok); }
+.gp-goal.fail .gg-prog { color: var(--danger); }
+.gp-goal.puzzle .gg-prog { color: var(--violet-2); }
+.gg-pips { display: flex; gap: 5px; margin-top: 4px; }
+.gg-pips u { width: 22px; height: 6px; border-radius: 4px; text-decoration: none; background: rgba(255, 255, 255, .12); }
+.gg-pips u.used { background: var(--violet-2); }
+
+/* модалка результата: строка цели */
+.modal-goal.ok { color: var(--ok); }
+.modal-goal.fail { color: var(--ink-dim); }
+
+/* ================= ПОЕДИНОК: шапка ================= */
+.dg-header { align-items: center; }
+.dg-chips { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.dg-chip {
+  display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800;
+  color: var(--ink-dim); background: var(--panel-2); border: 1px solid var(--line-2); white-space: nowrap;
+}
+.dg-chip.gold { color: var(--gold); background: rgba(227, 191, 124, .09); border-color: rgba(227, 191, 124, .35); }
+.dg-chip .mcoin { margin: 0 0 0 4px; width: 12px; height: 12px; vertical-align: -2px; }
+
+/* плашки игроков поединка: часы справа */
+.dg-bar .du-cap { gap: 0; }
+.dg-bar .du-cap-p { width: 21px; height: 21px; margin: 0 0 0 -8px; }
+.dg-bar .du-cap-g { margin-left: 4px; }
+.dg-bar .du-cap-adv { margin-left: 8px; color: var(--ok); }
+.dg-bar .gp-ava[data-side="w"] { --tier: #f1ecdc; }
+.dg-bar .gp-ava[data-side="b"] { --tier: #8e55e6; }
+.dg-clock {
+  flex: none; display: flex; align-items: center; min-width: 74px; justify-content: center; padding: 8px 12px; border-radius: 12px;
+  background: var(--bg-2); border: 1px solid var(--line-2); transition: background .2s ease, border-color .2s ease;
+}
+.dg-clock b { font: 800 17px var(--font-ui); color: var(--ink-dim); font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+.dg-clock.active { background: var(--tint-2); border-color: rgba(185, 139, 245, .55); }
+.dg-clock.active b { color: var(--violet-3); }
+.dg-clock.low b { color: var(--danger); }
+.dg-clock.low.active { background: rgba(238, 129, 149, .12); border-color: rgba(238, 129, 149, .55); animation: gsPulse 1s ease-in-out infinite; }
+
+/* ================= ПОЕДИНОК: кнопки ================= */
+.dg-actions { display: flex; gap: 10px; }
+.dg-btn {
+  position: relative; flex: 1; display: flex; align-items: center; justify-content: center; gap: 9px;
+  padding: 13px 10px; border-radius: 14px; cursor: pointer; font: 800 13px var(--font-ui); color: var(--ink);
+  background: var(--panel); border: 1px solid var(--line-2);
+  transition: transform .12s ease, border-color .15s ease, background .15s ease, filter .15s ease;
+}
+.dg-btn svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.dg-btn:hover { border-color: var(--line-3); background: var(--panel-2); }
+.dg-btn:active { transform: scale(.96); }
+.dg-chat { flex: 1.35; color: var(--violet-3); background: var(--tint); border-color: rgba(185, 139, 245, .4); }
+.dg-chat:hover { background: var(--tint-2); border-color: rgba(185, 139, 245, .6); }
+.dg-chat.ping { animation: duPing .6s ease 2; }
+.dg-danger { color: var(--danger); border-color: rgba(238, 129, 149, .32); }
+.dg-danger:hover { background: rgba(238, 129, 149, .08); border-color: rgba(238, 129, 149, .55); }
+.dg-primary, .dg-primary.du-rematch {
+  color: #fff; border-color: transparent; background: linear-gradient(135deg, #8173f4, #6354e0);
+  box-shadow: 0 10px 22px -10px rgba(99, 84, 224, .8), inset 0 1px 0 rgba(255, 255, 255, .2);
+}
+.dg-primary:hover { filter: brightness(1.08); background: linear-gradient(135deg, #8173f4, #6354e0); }
+.dg-btn[hidden] { display: none !important; }
+.dg-chat .du-badge { top: -8px; right: -5px; }
+
+/* ================= ПОЕДИНОК: панель чата ================= */
+.du-sheet { background: rgba(5, 6, 8, .7); }
+.dg-sheet-card { max-height: 86%; }
+.dg-sheet-card::before { content: ""; align-self: center; width: 38px; height: 4px; margin: 9px 0 0; border-radius: 4px; background: var(--line-2); }
+.dg-sheet-head { display: flex; align-items: center; gap: 12px; padding: 12px 16px 14px; border-bottom: 1px solid var(--line); }
+.dg-chat-ava { width: 40px; height: 40px; --tier: #8e55e6; }
+.dg-sheet-head .gp-who { flex: 1; }
+.dg-sheet-head .gp-who b { font: 600 17px var(--font-display); max-width: 220px; }
+.dg-sheet-head .gp-who small { font-size: 11.5px; }
+.dg-sheet-card .du-sheet-x { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 12px; background: var(--panel-3); border: 1px solid var(--line); }
+.dg-sheet-card .du-sheet-x svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.dg-sheet-card .du-chat-log { height: min(42vh, 340px); padding: 14px 16px; gap: 8px; background: rgba(0, 0, 0, .12); }
+.dg-sheet-card .du-msg { max-width: 80%; padding: 9px 13px 7px; border-radius: 16px; font-size: 13.5px; }
+.dg-sheet-card .du-msg small { font-size: 10.5px; color: var(--violet-2); margin-bottom: 3px; }
+.dg-sheet-card .du-msg time { display: block; margin-top: 3px; font-size: 9.5px; font-weight: 700; opacity: .55; text-align: right; }
+.dg-sheet-card .du-msg.me { color: #fff; border: none; border-bottom-right-radius: 5px; background: linear-gradient(135deg, #7d6ff0, #5d4fd8); }
+.dg-sheet-card .du-msg.me small { color: rgba(255, 255, 255, .8); }
+.dg-sheet-card .du-msg.them { border-bottom-left-radius: 5px; }
+.dg-sheet-card .du-chat-empty { padding: 30px 10px; line-height: 1.5; }
+.dg-quick { display: flex; gap: 8px; padding: 10px 16px 0; overflow-x: auto; scrollbar-width: none; }
+.dg-quick::-webkit-scrollbar { display: none; }
+.dg-q {
+  flex: none; padding: 8px 13px; border-radius: 999px; cursor: pointer; font: 700 12px var(--font-ui); color: var(--ink-dim);
+  background: var(--panel-2); border: 1px solid var(--line-2); transition: color .15s ease, border-color .15s ease, transform .12s ease;
+}
+.dg-q:hover { color: var(--violet-3); border-color: rgba(185, 139, 245, .5); }
+.dg-q:active { transform: scale(.95); }
+.dg-chat-row { display: flex; gap: 10px; padding: 12px 16px 14px; }
+.dg-chat-row .du-chat-input { flex: 1; min-width: 0; padding: 12px 16px; font-size: 14px; border-radius: 999px; }
+.dg-chat-row .du-chat-send {
+  flex: none; width: 46px; height: 46px; padding: 0; display: grid; place-items: center; border-radius: 50%;
+  box-shadow: 0 10px 20px -10px rgba(99, 84, 224, .9);
+}
+.dg-chat-row .du-chat-send svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ================= компактно на узком экране ================= */
+@media (max-width: 480px) {
+  .gp-bar { padding: 6px 10px 6px 6px; gap: 8px; }
+  .gp-ava { width: 38px; height: 38px; }
+  .gp-who b, .gp-who small { max-width: 112px; }
+  .game-status { min-height: 38px; margin: 8px 0 10px; padding: 8px 12px; font-size: 13px; }
+  .gp-goal { padding: 10px 12px; }
+  .dg-clock { min-width: 66px; padding: 7px 9px; }
+  .dg-clock b { font-size: 16px; }
+  .dg-btn { padding: 12px 6px; font-size: 12.5px; gap: 7px; }
+}
+
+/* ================= десктоп: доска слева, панель справа ================= */
+@media (min-width: 1024px) {
+  #view-game > .gp-bar, #view-duel-game > .gp-bar { max-width: 380px; }
+  .game-status { font-size: 15px; padding: 12px 14px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); }
+  .dg-status.mine { border-color: rgba(114, 214, 163, .35); }
+  .gp-who b, .gp-who small { max-width: 130px; }
+  .dg-actions { flex-direction: column; }
+  .dg-btn { padding: 14px; font-size: 14.5px; }
+  .du-sheet { align-items: center; justify-content: center; position: fixed; z-index: 320; }
+  .dg-sheet-card { width: 460px; max-width: 94vw; max-height: 80vh; border: 1px solid var(--line-2); border-radius: 24px; transform: translateY(18px) scale(.97); }
+  .du-sheet.open .dg-sheet-card { transform: none; }
+  .dg-sheet-card::before { display: none; }
+  .lv-card { min-height: 160px; }
+  .jump-current { bottom: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jump-pulse, .gp-think i, .gs-dot, .dg-clock.low.active { animation: none !important; }
+}

@@ -1,0 +1,123 @@
+/* maper.chess — общая доводка интерфейса: шапка, меню, друзья. Подключается после desktop.css */
+
+/* ---------- шапка: ничего не налезает друг на друга ---------- */
+.topbar { flex-wrap: nowrap; }
+.brand { flex: 1 1 auto; min-width: 0; }
+.brand-name { overflow: hidden; text-overflow: ellipsis; }
+.topbar-stats { flex: none; }
+.pill-rank { padding: 0 10px 0 6px; }
+@media (max-width: 560px) {
+  .brand-name { display: none; }
+  .topbar { padding-left: 12px; padding-right: 12px; }
+  .topbar-stats { gap: 5px; }
+  .pill { padding: 0 8px; }
+}
+
+/* ---------- нижнее меню на телефоне: 9 пунктов не сжимаются в кашу ---------- */
+@media (max-width: 1023px) {
+  .bottom-nav { grid-auto-columns: minmax(66px, 1fr); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; scroll-snap-type: x proximity; }
+  .bottom-nav::-webkit-scrollbar { display: none; }
+  .nav-btn { scroll-snap-align: center; padding-left: 4px; padding-right: 4px; font-size: 10px; }
+  .nav-btn span:last-child { max-width: 64px; }
+}
+
+/* ---------- друзья ---------- */
+.fr-my { width: 100%; margin-bottom: 12px; }
+.fr-add { display: flex; gap: 10px; margin-bottom: 22px; }
+.fr-add .nick-input { flex: 1; min-width: 0; }
+.fr-add .btn { flex: none; }
+.fr-sec { margin: 22px 0 12px; font-size: 12px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-faint); }
+
+.fr-row.fr-card {
+  grid-template-columns: 54px minmax(0, 1fr) auto; gap: 14px; padding: 14px 16px; margin-bottom: 10px; border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012)), var(--panel);
+}
+.fr-card .fr-ava { width: 54px; height: 54px; font-size: 21px; box-shadow: 0 0 0 2px var(--rk, var(--line-2)), 0 6px 16px -6px var(--rk, transparent); border: 2px solid var(--bg); }
+.fr-card .fr-ava img { width: 100%; height: 100%; object-fit: cover; }
+.fr-card .fr-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.fr-card .fr-nick { display: flex; align-items: center; gap: 7px; min-width: 0; font-size: 16px; font-weight: 800; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.fr-card .fr-nick .rk { margin: 0; }
+.fr-card .fr-rk { font-size: 12.5px; font-weight: 600; color: var(--ink-dim); }
+.fr-card .fr-stats { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+.fr-st {
+  display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 700; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line);
+}
+.fr-tap { font-size: 12.5px; color: var(--ink-faint); }
+.fr-go { font-size: 26px; line-height: 1; color: var(--ink-faint); transition: transform .15s ease, color .15s ease; }
+.fr-card:hover .fr-go { color: var(--violet-2); transform: translateX(3px); }
+
+@media (min-width: 1024px) {
+  #view-friends { max-width: 1160px; }
+  #view-friends .fr-add { max-width: 560px; }
+  #view-friends .fr-my { width: auto; }
+  #fr-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 14px; }
+  #fr-list .fr-row { margin: 0; }
+}
+
+/* ===================== v2: исправления десктопа и дизайн ===================== */
+
+/* страховка: неактивный раздел никогда не показывается, что бы ни написали ID-правила */
+.view:not(.active) { display: none !important; }
+
+/* ---------- карточка игрока: аватар по центру, значок звания на месте ----------
+   ranks.js подкладывал .pp-ava-wrap{display:inline-block}, из-за этого аватар уезжал влево */
+.pp-card .pp-ava-wrap { display: flex; align-items: center; justify-content: center; width: 104px; height: 104px; margin: 6px auto 18px; }
+.pp-card .pp-ava-wrap .pp-ava { flex: none; margin: 0; }
+.pp-card .pp-ava-wrap .rk-corner { position: absolute; right: -8px; bottom: -6px; width: 38px; height: 38px; }
+.pp-card .pp-nick { line-height: 1.2; }
+.pp-card .pp-rank { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
+@media (min-width: 1024px) {
+  .pp-overlay .pp-card { width: min(460px, 94vw); padding: 38px 30px 28px; }
+  .pp-stats { gap: 10px; }
+  .pp-stat { padding: 14px 6px; }
+  .pp-stat b { font-size: 20px; }
+}
+
+/* ---------- экран выбора ника ---------- */
+.nick-card { max-width: 420px; margin: 0 auto; }
+@media (min-width: 1024px) {
+  .nick-gate { position: fixed; z-index: 400; }
+  .nick-card {
+    padding: 42px 38px 36px; border-radius: 28px; border: 1px solid var(--line-2);
+    background: linear-gradient(180deg, var(--panel-2), var(--panel)); box-shadow: 0 40px 90px -24px rgba(0, 0, 0, .85);
+  }
+  .nick-card .btn { width: 100%; }
+}
+
+/* ---------- боковое меню: единые линейные иконки ---------- */
+.nav-btn > span:first-child { display: inline-flex; align-items: center; justify-content: center; }
+.nav-btn svg.nv { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+@media (min-width: 1024px) {
+  .nav-btn > span:first-child { font-size: 0; opacity: .95; }
+  .nav-btn.active svg.nv { stroke-width: 2.1; }
+}
+
+/* ---------- друзья ---------- */
+.fr-card .fr-ava { flex: none; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 50%; font: 700 22px var(--font-display); }
+.fr-card .fr-ava span { display: block; line-height: 1; transform: translateY(-1px); }
+.fr-card .fr-ava img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.fr-card .fr-nick { gap: 8px; }
+.fr-card .fr-nick-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.fr-card .fr-rk { line-height: 1.2; }
+.fr-st b { font-weight: 800; font-variant-numeric: tabular-nums; }
+.fr-st svg { flex: none; display: block; }
+.fr-side { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.fr-acts .btn { padding: 10px 16px; font-size: 13.5px; border-radius: 12px; white-space: nowrap; }
+.fr-req { border-color: rgba(185, 139, 245, .35) !important; background: linear-gradient(180deg, rgba(142, 85, 230, .10), rgba(142, 85, 230, .03)), var(--panel) !important; }
+.fr-card.fr-click, .fr-card:not(.fr-req) { cursor: pointer; }
+#fr-reqs .lb-note, #fr-list .lb-note { padding: 14px 0; text-align: left; color: var(--ink-faint); }
+#fr-reqs .lb-note:empty { display: none; }
+@media (max-width: 560px) {
+  .fr-req.fr-card { grid-template-columns: 54px minmax(0, 1fr); }
+  .fr-req .fr-side { grid-column: 1 / -1; justify-content: stretch; }
+  .fr-req .fr-side .btn { flex: 1; }
+}
+@media (min-width: 1024px) {
+  #fr-reqs { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 14px; }
+  #fr-reqs .fr-row { margin: 0; }
+  #fr-reqs .lb-note { grid-column: 1 / -1; }
+  #fr-list .lb-note { grid-column: 1 / -1; }
+  #view-friends .fr-card { transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease; }
+  #view-friends .fr-card:not(.fr-req):hover { transform: translateY(-2px); }
+}

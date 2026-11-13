@@ -1,0 +1,254 @@
+/* =====================================================================
+   maper.chess — theme.css  (подключается САМЫМ ПОСЛЕДНИМ)
+   Две темы: тёмная (по умолчанию) и светлая.
+   Тема хранится в localStorage "mc-theme" и ставится атрибутом <html data-theme="...">.
+   Фиолетовый остаётся фирменным, но приглушён и используется только для главного.
+   ===================================================================== */
+
+/* ============================ ТЁМНАЯ ============================ */
+:root,
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e0e12;
+  --bg-2: #131318;
+  --panel: #18181e;
+  --panel-2: #1f1f26;
+  --panel-3: #2a2a33;
+  --line: rgba(255, 255, 255, .07);
+  --line-2: rgba(255, 255, 255, .12);
+  --line-3: rgba(255, 255, 255, .2);
+  --sel: #2a2b33;
+
+  --ink: #ecebe8;
+  --ink-dim: #a2a2ad;
+  --ink-faint: #74747f;
+
+  /* приглушённый фиолетовый */
+  --violet: #8466c9;
+  --violet-2: #ab95e0;
+  --violet-3: #d3c7f2;
+  --violet-deep: #5a4396;
+  --brand-1: #d3c7f2; --brand-2: #ab95e0; --brand-3: #8466c9; --brand-4: #5a4396;
+  --tint: rgba(132, 102, 201, .10);
+  --tint-2: rgba(132, 102, 201, .17);
+  --violet-grad: linear-gradient(135deg, #9479d4 0%, #7a5dc0 55%, #664bab 100%);
+
+  --sh-violet: #8466c9; --sh-violet-2: #ab95e0; --sh-tint: rgba(132, 102, 201, .12);
+  --sh-line: rgba(255,255,255,.08); --sh-line-2: rgba(255,255,255,.14);
+  --sh-panel: #17171d; --sh-ink: #ecebe8; --sh-dim: #a2a2ad;
+
+  --th-glow: rgba(132, 102, 201, .06);
+  --th-btn-shadow: 0 10px 24px -14px rgba(122, 93, 192, .55);
+  --th-side: linear-gradient(180deg, #141419, #101014);
+
+  /* огонёк */
+  --th-flame-bg: linear-gradient(180deg, rgba(255, 166, 90, .14), rgba(255, 120, 60, .05)), var(--panel);
+  --th-flame-line: rgba(255, 154, 74, .4);
+  --th-flame-ink: #ffd8ad;
+  --th-flame-shadow: 0 6px 16px -10px rgba(255, 120, 50, .6);
+}
+
+html[data-theme="dark"] body,
+body {
+  background:
+    radial-gradient(900px 520px at 85% -10%, var(--th-glow), transparent 60%),
+    var(--bg) !important;
+  background-attachment: fixed;
+}
+::selection { background: rgba(132, 102, 201, .35); color: #fff; }
+
+.btn-primary {
+  background: var(--violet-grad) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), var(--th-btn-shadow) !important;
+}
+.brand-logo { filter: drop-shadow(0 0 6px rgba(132, 102, 201, .3)) !important; }
+.avatar-btn {
+  background: linear-gradient(135deg, #8a6ecf, #6a50b0) !important;
+  border-color: rgba(171, 149, 224, .35) !important;
+  box-shadow: 0 4px 12px -6px rgba(122, 93, 192, .5) !important;
+}
+@media (min-width: 900px) {
+  .bottom-nav { background: var(--th-side) !important; }
+}
+.pill-rank { border-color: var(--line-2) !important; }
+
+/* ---- огонёк в шапке: спокойная тёплая плашка ---- */
+.pill-streak.active {
+  color: var(--th-flame-ink) !important;
+  background: var(--th-flame-bg) !important;
+  border-color: var(--th-flame-line) !important;
+  box-shadow: var(--th-flame-shadow) !important;
+}
+.pill-streak.active .flame { filter: drop-shadow(0 0 3px rgba(255, 140, 60, .45)) !important; }
+.pill-streak.active #streak-count {
+  background: none !important; -webkit-background-clip: border-box !important; background-clip: border-box !important;
+  color: var(--th-flame-ink) !important;
+}
+
+/* ---- кнопка переключения темы ---- */
+.theme-toggle {
+  width: 36px; height: 36px; flex: none; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line-2); background: var(--panel); color: var(--ink-dim);
+  cursor: pointer; padding: 0; transition: color .2s ease, background .2s ease, transform .15s ease;
+}
+.theme-toggle:hover { color: var(--ink); background: var(--panel-2); }
+.theme-toggle:active { transform: scale(.92); }
+.theme-toggle svg { width: 18px; height: 18px; }
+.theme-toggle .tt-sun { display: none; }
+html[data-theme="light"] .theme-toggle .tt-sun { display: block; }
+html[data-theme="light"] .theme-toggle .tt-moon { display: none; }
+@media (max-width: 380px) { .theme-toggle { width: 32px; height: 32px; } }
+
+/* плавная смена темы (только в момент переключения) */
+html.theme-anim, html.theme-anim * { transition: background-color .3s ease, color .3s ease, border-color .3s ease !important; }
+
+/* ============================ СВЕТЛАЯ ============================ */
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4f3f7;
+  --bg-2: #eeedf2;
+  --panel: #ffffff;
+  --panel-2: #f6f5f9;
+  --panel-3: #eae8f0;
+  --line: rgba(30, 24, 50, .08);
+  --line-2: rgba(30, 24, 50, .13);
+  --line-3: rgba(30, 24, 50, .22);
+  --sel: #ebe8f3;
+
+  --ink: #1d1b24;
+  --ink-dim: #5a5866;
+  --ink-faint: #8a8896;
+
+  --violet: #7356bd;
+  --violet-2: #6a4fb3;
+  --violet-3: #4e3790;
+  --violet-deep: #5a4396;
+  --brand-1: #4e3790; --brand-2: #6a4fb3; --brand-3: #7356bd; --brand-4: #5a4396;
+  --tint: rgba(115, 86, 189, .08);
+  --tint-2: rgba(115, 86, 189, .14);
+  --violet-grad: linear-gradient(135deg, #8468c8 0%, #7155ba 55%, #6047a8 100%);
+
+  --gold: #a87414;
+  --danger: #c4425a;
+  --ok: #23905c;
+  --flame: #d4661c;
+  --ice: #2b7fae;
+
+  --sh-violet: #7356bd; --sh-violet-2: #6a4fb3; --sh-tint: rgba(115, 86, 189, .1);
+  --sh-line: rgba(30,24,50,.08); --sh-line-2: rgba(30,24,50,.14);
+  --sh-panel: #ffffff; --sh-ink: #1d1b24; --sh-dim: #5a5866;
+
+  --card: #ffffff;
+  --surface-shadow: 0 1px 2px rgba(30,24,50,.05), 0 8px 24px -16px rgba(30,24,50,.18);
+  --th-glow: rgba(115, 86, 189, .07);
+  --th-btn-shadow: 0 10px 22px -14px rgba(96, 71, 168, .6);
+  --th-side: #ffffff;
+
+  --th-flame-bg: linear-gradient(180deg, #fff4e8, #ffe9d4);
+  --th-flame-line: #f6c79a;
+  --th-flame-ink: #b4520f;
+  --th-flame-shadow: 0 2px 8px -4px rgba(212, 102, 28, .35);
+}
+html[data-theme="light"] ::selection { background: rgba(115, 86, 189, .22); color: var(--ink); }
+html[data-theme="light"] body { color: var(--ink) !important; }
+
+/* поверхности */
+html[data-theme="light"] .topbar { background: rgba(244, 243, 247, .86) !important; border-color: var(--line) !important; box-shadow: none !important; }
+html[data-theme="light"] .xp-track { background: var(--line) !important; }
+html[data-theme="light"] .bottom-nav {
+  background: rgba(255, 255, 255, .94) !important; border-color: var(--line-2) !important;
+  box-shadow: 0 -6px 20px -14px rgba(30,24,50,.25) !important;
+}
+@media (min-width: 900px) {
+  html[data-theme="light"] .bottom-nav { background: #fff !important; box-shadow: 1px 0 0 var(--line) !important; }
+}
+html[data-theme="light"] .nav-btn { color: var(--ink-faint) !important; }
+html[data-theme="light"] .nav-btn.active { color: var(--violet) !important; }
+html[data-theme="light"] .brand-name { color: var(--ink) !important; }
+html[data-theme="light"] .brand-logo { filter: none !important; }
+
+html[data-theme="light"] .pill {
+  background: #fff !important; color: var(--ink) !important;
+  border-color: var(--line-2) !important; box-shadow: 0 1px 2px rgba(30,24,50,.05) !important;
+}
+html[data-theme="light"] .pill-coins { color: var(--gold) !important; }
+html[data-theme="light"] .pill-streak { color: var(--ink-faint) !important; }
+html[data-theme="light"] .pill-streak .flame .fl { filter: grayscale(1) brightness(1.1); opacity: .45; }
+html[data-theme="light"] .pill-streak.active {
+  color: var(--th-flame-ink) !important; background: var(--th-flame-bg) !important;
+  border-color: var(--th-flame-line) !important; box-shadow: var(--th-flame-shadow) !important;
+}
+html[data-theme="light"] .pill-streak.active .flame { filter: none !important; }
+html[data-theme="light"] .pill-streak.active .flame .fl { filter: none; opacity: 1; }
+
+/* карточка серии (огонёк на главной) */
+html[data-theme="light"] .streak-card,
+html[data-theme="light"] #view-home .streak-card.sk {
+  background: #fff !important; border-color: var(--line-2) !important; box-shadow: var(--surface-shadow) !important;
+}
+html[data-theme="light"] #view-home .streak-card.sk.streak-on { border-color: #f6d3b0 !important; }
+html[data-theme="light"] #view-home .streak-card.sk.streak-done {
+  background: linear-gradient(180deg, #fff7ef, #ffffff 70%) !important;
+  border-color: #f6c79a !important;
+  box-shadow: 0 1px 2px rgba(30,24,50,.05), 0 14px 30px -20px rgba(212,102,28,.35) !important;
+}
+html[data-theme="light"] #view-home .streak-card.sk::after { display: none; }
+html[data-theme="light"] .sk-emblem {
+  background: #fff6ec !important; border-color: #f6dcc2 !important; box-shadow: none !important;
+}
+html[data-theme="light"] .streak-card:not(.streak-on):not(.streak-done) .sk-emblem { background: var(--panel-2) !important; border-color: var(--line-2) !important; }
+html[data-theme="light"] .sk-count, html[data-theme="light"] .sk-count b { color: var(--ink) !important; -webkit-text-fill-color: currentColor !important; background: none !important; }
+html[data-theme="light"] .streak-card.streak-done .sk-count b,
+html[data-theme="light"] .streak-card.streak-on .sk-count b { color: var(--th-flame-ink) !important; }
+html[data-theme="light"] .sk-note { color: var(--ink-dim) !important; }
+html[data-theme="light"] .streak-freeze { background: #eef6fb !important; color: var(--ice) !important; border-color: #cfe4f1 !important; }
+html[data-theme="light"] .wd, html[data-theme="light"] .wd b { color: var(--ink-dim) !important; }
+html[data-theme="light"] .wd b { background: var(--panel-2) !important; border-color: var(--line-2) !important; }
+
+/* текст: всё светлое становится тёмным */
+html[data-theme="light"] h1, html[data-theme="light"] h2, html[data-theme="light"] h3,
+html[data-theme="light"] h4, html[data-theme="light"] h5, html[data-theme="light"] .view-title { color: var(--ink); }
+
+/* кнопки */
+html[data-theme="light"] .btn-primary, html[data-theme="light"] .btn-primary * { color: #fff !important; }
+html[data-theme="light"] .btn-ghost, html[data-theme="light"] .btn-secondary, html[data-theme="light"] .btn:not(.btn-primary) {
+  background: #fff; color: var(--ink); border-color: var(--line-2);
+}
+html[data-theme="light"] .icon-btn { background: #fff; color: var(--ink-dim); border-color: var(--line-2); }
+
+/* поля ввода */
+html[data-theme="light"] input, html[data-theme="light"] textarea, html[data-theme="light"] select {
+  background: #fff !important; color: var(--ink) !important; border-color: var(--line-3) !important;
+}
+html[data-theme="light"] input::placeholder, html[data-theme="light"] textarea::placeholder { color: var(--ink-faint) !important; }
+
+/* модалки и шторки */
+html[data-theme="light"] .modal-backdrop, html[data-theme="light"] .ms-backdrop { background: rgba(30, 24, 50, .35) !important; }
+html[data-theme="light"] .more-sheet .ms-panel { background: #fff !important; }
+
+/* кадры доски — доска остаётся своей (цвета из магазина) */
+html[data-theme="light"] .board { box-shadow: 0 10px 30px -18px rgba(30,24,50,.45) !important; }
+
+/* PC-сайдбар: логотип без неонового свечения */
+@media (min-width: 900px) {
+  .bottom-nav::after { filter: drop-shadow(0 0 6px rgba(132, 102, 201, .3)) !important; }
+  html[data-theme="light"] .bottom-nav::after { filter: none !important; }
+  html[data-theme="light"] .nav-btn.active {
+    background: var(--tint-2) !important; box-shadow: inset 0 0 0 1px rgba(115, 86, 189, .22) !important; color: var(--violet-3) !important;
+  }
+  html[data-theme="light"] .nav-btn:hover:not(.active) { background: var(--panel-2) !important; }
+}
+
+/* кнопка-аватар в шапке */
+#btn-settings.top-profile {
+  border: 2px solid rgba(171, 149, 224, .35) !important;
+  background: linear-gradient(135deg, #8a6ecf, #6a50b0) !important;
+  box-shadow: 0 4px 12px -6px rgba(122, 93, 192, .45) !important;
+}
+html[data-theme="light"] #btn-settings.top-profile { border-color: #fff !important; box-shadow: 0 0 0 1px var(--line-2), 0 3px 10px -5px rgba(96, 71, 168, .5) !important; }
+
+/* «Продумать ход» — спокойная плашка вместо яркой фиолетовой */
+.think-toggle:not(.on) {
+  background: var(--tint) !important; border-color: rgba(132, 102, 201, .28) !important; color: var(--violet-3) !important;
+}

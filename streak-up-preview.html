@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Превью: повышение огонька</title>
+<link rel="stylesheet" href="css/icons.css?v=1" />
+<link rel="stylesheet" href="css/styles.css" />
+<link rel="stylesheet" href="css/extras.css" />
+<link rel="stylesheet" href="css/polish.css?v=2" />
+<link rel="stylesheet" href="css/fx.css" />
+<link rel="stylesheet" href="css/home-deco.css?v=3" />
+<link rel="stylesheet" href="css/shell.css?v=3" />
+<link rel="stylesheet" href="css/app.css?v=2" />
+<link rel="stylesheet" href="css/streak-up.css" />
+<style>
+  body { min-height: 100vh; background: var(--bg); }
+  .pv-panel { padding: 8px 4px 40px; }
+  .pv-panel h1 { font-family: var(--font-display); font-size: 22px; margin: 18px 0 4px; }
+  .pv-panel p { color: var(--ink-dim); font-size: 13px; margin: 0 0 14px; }
+  .pv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pv-grid .btn { padding: 12px 10px; font-size: 13.5px; }
+  .pv-lang { display: flex; gap: 8px; margin-top: 14px; }
+</style>
+</head>
+<body>
+<script src="js/icons.js?v=1"></script>
+<svg id="mc-flame-defs" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="mcf-o" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb347"/><stop offset=".5" stop-color="#ff6a2b"/><stop offset="1" stop-color="#d42a22"/></linearGradient>
+  <linearGradient id="mcf-m" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe56e"/><stop offset="1" stop-color="#ff9a2e"/></linearGradient>
+  <linearGradient id="mcf-i" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf0"/><stop offset="1" stop-color="#ffe98a"/></linearGradient>
+  <radialGradient id="mcf-g" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff8a2e" stop-opacity=".6"/><stop offset="1" stop-color="#ff8a2e" stop-opacity="0"/></radialGradient>
+</defs></svg>
+
+<div class="phone-frame">
+  <header class="topbar">
+    <div class="brand"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-knight"/></svg><span class="brand-name">maper.chess</span></div>
+    <div class="topbar-stats">
+      <span class="pill pill-rank" id="player-rank">Lv. 1</span>
+      <span class="pill pill-streak" id="streak-pill"><i class="flame" data-flame></i><span id="streak-count">0</span></span>
+      <span class="pill pill-coins"><i class="mcoin"></i><span id="coin-count">0</span></span>
+    </div>
+  </header>
+  <div class="xp-track" aria-hidden="true"><span class="xp-fill" id="xp-fill"></span></div>
+  <main class="views">
+    <section id="view-home" class="view active">
+      <div class="pv-panel">
+        <h1>Повышение огонька — превью</h1>
+        <p>Запускает реальный код <code>js/streak-up.js</code>. Тап по экрану во время анимации — пропуск к финалу.</p>
+        <div class="pv-grid" id="pv-grid"></div>
+        <div class="pv-lang">
+          <button class="btn btn-ghost" id="pv-ru">RU</button>
+          <button class="btn btn-ghost" id="pv-en">EN</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="js/i18n.js"></script>
+<script src="js/data.js?v=2"></script>
+<script src="js/state.js?v=app2"></script>
+<script>
+  /* минимальная заглушка UI, чтобы подтянулись настоящие фигуры магазина и Celebrate */
+  window.UI = { state: { equipped: { pieces: "pieces-classic", board: "board-classic" }, streak: { count: 0, best: 0, freezes: 0, history: {} }, coins: 0, xp: 0 },
+    renderShop: function () {}, renderTopbar: function () {}, _toast: function () {} };
+</script>
+<script src="js/pieces.js"></script>
+<script src="js/pieces-pro.js?v=1"></script>
+<script src="js/pieces-concepts.js"></script>
+<script src="js/rewards.js?v=6"></script>
+<script src="js/sfx.js?v=3"></script>
+<script src="js/home-deco.js?v=3"></script>
+<script src="js/streak-up.js"></script>
+<script>
+  var SC = [
+    ["Первый огонёк (0 → 1)", 0, 1], ["Обычный день (4 → 5)", 4, 5],
+    ["Пешка → Конь (2 → 3)", 2, 3], ["Конь → Слон (6 → 7)", 6, 7],
+    ["Слон → Ладья (13 → 14)", 13, 14], ["Ладья → Ферзь (29 → 30)", 29, 30],
+    ["Рубеж без повышения (59 → 60)", 59, 60], ["Ферзь → Король (99 → 100)", 99, 100],
+    ["Двузначный (9 → 10)", 9, 10], ["Три цифры (104 → 105)", 104, 105]
+  ];
+  var g = document.getElementById("pv-grid");
+  SC.forEach(function (s) {
+    var b = document.createElement("button"); b.className = "btn btn-ghost"; b.textContent = s[0];
+    b.onclick = function () { document.getElementById("streak-count").textContent = s[1]; document.getElementById("streak-pill").classList.remove("active"); StreakUp.preview(s[1], s[2]); };
+    g.appendChild(b);
+  });
+  document.getElementById("pv-ru").onclick = function () { setLang("ru"); };
+  document.getElementById("pv-en").onclick = function () { setLang("en"); };
+  document.querySelectorAll("[data-flame]").forEach(function (el) { if (!el.firstChild) el.innerHTML = Flame.svg(); });
+  try { setLang("ru"); } catch (e) {}
+</script>
+</body>
+</html>

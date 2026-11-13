@@ -1,0 +1,120 @@
+/* maper.chess — Деревня 2.0: казна, заказы, декор, войско, походы, бой. Цвета — из токенов темы (латунь/графит). */
+
+/* ---------- казна ---------- */
+.vl-tre { padding: 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 9px; }
+.vl-tre-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.vl-tre-n { font: 800 32px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.vl-tre-n small { font: 600 14px var(--font-ui); color: var(--ink-faint); }
+.vl-tre .btn { min-height: 44px; padding: 0 18px; }
+.vl-bar.big { height: 12px; }
+.vl-tre.full .vl-bar i { background: var(--flame); }
+.vl-exposed { color: var(--flame); }
+.vl-viewbar { margin: 14px 0 4px; }
+.vl-mini { display: flex; gap: 6px; flex-wrap: wrap; }
+.vl-mini .shop-tab { flex: 1; min-width: 0; padding: 8px 6px; font-size: 12.5px; }
+
+/* ---------- заказы ---------- */
+.vl-quests { padding: 14px; margin-bottom: 12px; }
+.vl-quests ul { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.vl-quests li { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding-top: 10px; border-top: 1px solid var(--line); }
+.vl-quests li:first-child { border-top: 0; padding-top: 0; }
+.vl-quests li b { font: 600 14px/1.25 var(--font-ui); display: block; margin-bottom: 6px; }
+.vl-quests li small { color: var(--ink-faint); font-size: 11.5px; }
+.vl-quests li .vl-bar { height: 6px; margin-bottom: 4px; }
+.vl-quests li.done b { color: var(--ink-faint); text-decoration: line-through; text-decoration-color: var(--line-3); }
+.vl-quests li.ready .vl-bar i { background: var(--ok); }
+.vl-quests .shop-btn { min-width: 108px; min-height: 38px; font-size: 13px; }
+.vl-q-done { color: var(--ok); font-weight: 700; font-size: 13px; }
+
+/* ---------- декор ---------- */
+.vd-head { display: flex; justify-content: space-between; align-items: end; margin: 6px 0 8px; }
+.vd-head b { font: 700 20px var(--font-display); }
+.vd-card, .vw-unit, .vw-target { grid-template-columns: 64px 1fr auto; }
+.vd-card .vl-card-t, .vw-unit .vl-card-t, .vw-target .vl-card-t { grid-column: 2; }
+.vd-card > .shop-btn, .vw-target > .shop-btn, .vd-card > .vl-card-act, .vw-unit > .vl-card-act { grid-column: 1 / -1; }
+.vd-card .vl-card-act { display: flex; gap: 8px; }
+.vd-card .vl-thumb { width: 64px; height: 64px; padding: 2px; }
+.vd-rar { font-style: normal; font: 700 10px/1 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--rc, var(--ink-dim)); border: 1px solid var(--rc, var(--line-2)); border-radius: 3px; padding: 2px 5px; margin-left: 4px; vertical-align: 2px; }
+.vd-card.r3, .vd-card.r4 { border-color: color-mix(in srgb, var(--violet) 40%, var(--line-2)); }
+.vd-card.r4 { box-shadow: inset 3px 0 0 #ff9ad5; }
+.vd-card.r3 { box-shadow: inset 3px 0 0 var(--gold); }
+.vd-card.r2 { box-shadow: inset 3px 0 0 #8f9bff; }
+.vd-sale { color: var(--ok); font-weight: 800; }
+.vd-coll { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.vd-cell { position: relative; aspect-ratio: 1; background: var(--panel); border: 1px dashed var(--line-2); border-radius: 8px; display: grid; place-items: center; color: var(--ink-faint); font: 700 18px var(--font-display); overflow: hidden; }
+.vd-cell.on { border: 1px solid var(--rc); background: #272016; }
+.vd-cell img { width: 100%; height: 100%; object-fit: contain; }
+.vd-cell em { position: absolute; right: 4px; bottom: 2px; font: 700 11px var(--font-ui); color: var(--ink); font-style: normal; }
+
+/* ---------- войско ---------- */
+.vw-sum { display: flex; justify-content: space-between; align-items: end; gap: 10px; flex-wrap: wrap; margin: 6px 0 8px; }
+.vw-sum b { font: 700 20px var(--font-display); }
+.vw-sum-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.vw-rep { font: 800 30px/1 var(--font-display); color: var(--violet-2); }
+.vw-unit canvas { width: 64px; height: 64px; background: #272016; border: 1px solid var(--line-2); border-radius: 8px; }
+.vw-unit.locked canvas { filter: grayscale(1) brightness(.6); }
+.vw-unit .vl-sz { font-style: normal; color: var(--violet-2); margin-left: 6px; }
+.vw-list { list-style: none; margin: 6px 0 10px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.vw-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+.vw-list li b { font: 600 13.5px var(--font-ui); }
+.vw-list li small { color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+.vw-list.chron li { align-items: flex-start; flex-wrap: wrap; }
+.vw-list.chron li.win { border-left: 3px solid var(--ok); }
+.vw-list.chron li.lose { border-left: 3px solid var(--danger); }
+.vw-list.chron.out li { border-left: 3px solid var(--violet); }
+.vw-list.chron small { display: flex; gap: 6px; align-items: center; margin-top: 3px; }
+.vw-row-act { display: flex; gap: 6px; }
+.vw-row-act .vl-rename { padding: 6px 10px; font-size: 12px; min-height: 0; }
+
+/* ---------- походы ---------- */
+.vw-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.vw-h .vl-rename { padding: 6px 10px; font-size: 12px; }
+.vw-target { position: relative; }
+.vw-badge { width: 64px; height: 64px; display: grid; place-items: center; background: #272016; border: 1px solid var(--line-2); border-radius: 8px; color: var(--ink-dim); }
+.vw-badge .vl-ic { width: 26px; height: 26px; }
+.vw-target.easy .vw-badge { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 50%, transparent); }
+.vw-target.fair .vw-badge { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 50%, transparent); }
+.vw-target.hard .vw-badge { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 55%, transparent); }
+.vw-search { display: flex; gap: 8px; }
+.vw-search .vl-input { flex: 1; min-width: 0; }
+.vw-star { width: 14px; height: 14px; fill: none; stroke: var(--ink-faint); stroke-width: 1.6; stroke-linejoin: round; }
+.vw-star.on { fill: var(--gold); stroke: var(--gold); }
+.vw-stars { display: inline-flex; gap: 2px; vertical-align: -2px; }
+
+/* ---------- окно набега ---------- */
+.vw-ov { position: fixed; inset: 0; z-index: 70; display: none; align-items: flex-end; justify-content: center; background: rgba(8, 6, 3, .8); }
+.vw-ov.open { display: flex; }
+.vw-card { width: min(100%, 430px); max-height: 96dvh; overflow-y: auto; background: var(--bg); border: 1px solid var(--line-2); border-radius: 14px 14px 0 0; padding: 14px 14px calc(16px + env(safe-area-inset-bottom)); position: relative; }
+.vw-card .vl-visit-x { position: absolute; top: 10px; right: 10px; z-index: 3; }
+.vw-card .vl-visit-stage { height: 270px; margin: 8px 0; position: relative; }
+.vw-card .vl-visit-head { padding-right: 38px; }
+.vw-info { display: flex; flex-direction: column; gap: 3px; margin-bottom: 4px; }
+.vw-info small { color: var(--ink-dim); }
+.vw-warn { color: var(--flame); font-weight: 600; }
+.vw-good { color: var(--ok); }
+.vw-row { display: grid; grid-template-columns: 44px 1fr auto auto; gap: 10px; align-items: center; padding: 6px 0; border-top: 1px solid var(--line); }
+.vw-row:first-of-type { border-top: 0; }
+.vw-row canvas { width: 44px; height: 44px; background: #272016; border-radius: 6px; border: 1px solid var(--line); }
+.vw-row b { font: 600 14px var(--font-ui); }
+.vw-row small { color: var(--ink-dim); font-variant-numeric: tabular-nums; min-width: 44px; text-align: right; }
+.vw-step { display: flex; gap: 6px; }
+.vw-est { margin: 8px 0 12px; display: flex; flex-direction: column; gap: 4px; }
+.vw-est small { color: var(--ink-dim); }
+.vw-odds { position: relative; height: 10px; background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 3px; overflow: hidden; }
+.vw-odds i { position: absolute; left: 0; top: 0; bottom: 0; }
+.vw-odds .a { background: #7a6a3a; } .vw-odds .b { background: var(--violet); } .vw-odds .c { background: var(--ok); }
+.vw-go { width: 100%; min-height: 50px; font-size: 16px; }
+.vw-hud { position: absolute; left: 10px; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 5px; pointer-events: none; }
+.vw-hud[hidden] { display: none; }
+.vw-hud #vw-round { font: 700 12px var(--font-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink); text-shadow: 0 1px 2px #000; }
+.vw-hud .vl-bar.wall { height: 10px; background: rgba(20, 15, 8, .8); }
+.vw-hud #vw-wall { display: block; height: 100%; width: 100%; background: var(--danger); transition: width .5s; }
+.vw-bat-bar { display: flex; justify-content: center; padding: 4px 0; }
+.vw-result { text-align: center; padding: 10px 0 4px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.vw-result h3 { font-size: 26px; margin: 2px 0; }
+.vw-result .vw-stars { gap: 6px; } .vw-result .vw-star { width: 30px; height: 30px; }
+.vw-result.r0 h3 { color: var(--ink-dim); } .vw-result.r3 h3 { color: var(--gold); }
+.vw-loot { display: flex; gap: 8px; align-items: center; justify-content: center; font-size: 18px; margin: 0; }
+.vw-result .btn { margin-top: 8px; min-width: 200px; }
+.vw-visit-atk { width: 100%; margin: 8px 0; }
+@media (min-width: 700px) { .vw-ov { align-items: center; } .vw-card { border-radius: 14px; } }

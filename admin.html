@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#0c0a11" />
+<meta name="color-scheme" content="dark" />
+<title>MaperChess — админ-панель</title>
+<link rel="icon" type="image/png" href="assets/favicon-32.png?v=2" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/icons.css?v=1" />
+<link rel="stylesheet" href="css/admin.css?v=2" />
+</head>
+<body>
+<script src="js/icons.js?v=1"></script>
+
+<!-- Вход -->
+<main id="login" class="center-screen" hidden>
+  <div class="card login-card">
+    <div class="logo"><img src="assets/logo-mark.png?v=2" alt="" style="width:100%;height:100%;object-fit:contain"></div>
+    <h1>Админ-панель</h1>
+    <p class="muted">Доступ только для администраторов. Войдите аккаунтом Google, который добавлен в список администраторов.</p>
+    <button id="btn-login" class="btn btn-primary" type="button">Войти через Google</button>
+    <p id="login-msg" class="msg" role="alert" hidden></p>
+  </div>
+</main>
+
+<!-- Загрузка -->
+<main id="boot" class="center-screen"><div class="spinner" aria-label="Загрузка"></div></main>
+
+<!-- Нет доступа -->
+<main id="denied" class="center-screen" hidden>
+  <div class="card login-card">
+    <div class="logo"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ban"/></svg></div>
+    <h1>Нет доступа</h1>
+    <p class="muted">Этот аккаунт не входит в список администраторов. Чтобы получить доступ, владелец проекта должен создать документ <code>admins/&lt;UID&gt;</code> в Firebase Console.</p>
+    <p class="muted">Ваш UID:</p>
+    <code id="denied-uid" class="uid-box"></code>
+    <button id="btn-denied-out" class="btn" type="button">Выйти</button>
+  </div>
+</main>
+
+<!-- Приложение -->
+<div id="app" hidden>
+  <header class="topbar">
+    <div class="brand"><span class="logo-s"><img src="assets/logo-mark.png?v=2" alt="" style="width:100%;height:100%;object-fit:contain"></span><b>MaperChess</b><span class="tag">админ</span></div>
+    <nav class="tabs" role="tablist">
+      <button class="tab on" data-tab="players" role="tab"><i class="ti"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-users"/></svg></i><span>Игроки</span></button>
+      <button class="tab" data-tab="bulk" role="tab"><i class="ti"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-coins"/></svg></i><span>Массовая выдача</span></button>
+      <button class="tab" data-tab="journal" role="tab"><i class="ti"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-doc"/></svg></i><span>Журнал</span></button>
+    </nav>
+    <div class="me"><div class="me-id"><span id="me-mail"></span><span id="me-role" class="badge"></span></div><button id="btn-out" class="btn btn-sm" type="button">Выйти</button></div>
+  </header>
+
+  <!-- ИГРОКИ -->
+  <section id="tab-players" class="pane">
+    <div class="pane-head"><h1>Игроки</h1><p>Найдите игрока по нику или ID и нажмите на строку — откроется его профиль: баланс, история, блокировка.</p></div>
+    <form id="search-form" class="card filters" autocomplete="off">
+      <div class="search-row">
+        <input id="q" type="search" placeholder="Никнейм или ID игрока (можно начало ID)" aria-label="Поиск игрока" />
+        <button class="btn btn-primary" type="submit">Найти</button>
+        <button class="btn" type="button" id="btn-reset">Сбросить</button>
+      </div>
+      <div class="filter-row">
+        <label class="fld"><span>Сортировка</span>
+          <select id="sort" aria-label="Сортировка">
+            <option value="lastSeenAt">Недавно заходили</option>
+            <option value="createdAt">Новые</option>
+            <option value="coins">Больше монет</option>
+            <option value="xp">Больше опыта</option>
+          </select></label>
+        <label class="fld"><span>Статус</span>
+          <select id="f-status" aria-label="Статус">
+            <option value="all">Все</option>
+            <option value="active">Активные</option>
+            <option value="banned">Заблокированные</option>
+          </select></label>
+        <label class="fld"><span>Тип аккаунта</span>
+          <select id="f-type" aria-label="Тип аккаунта">
+            <option value="all">Все</option>
+            <option value="google">Google</option>
+            <option value="guest">Гости</option>
+          </select></label>
+      </div>
+    </form>
+    <div class="card table-wrap">
+      <table class="tbl" id="players-tbl">
+        <thead><tr><th>ID</th><th>Никнейм</th><th class="num">Монеты</th><th class="num">Уровень</th><th>Статус</th><th>Последний вход</th></tr></thead>
+        <tbody id="players-body"></tbody>
+      </table>
+      <div id="players-state" class="state"></div>
+    </div>
+    <div class="more"><button id="btn-more" class="btn" type="button" hidden>Загрузить ещё</button></div>
+    <p class="hint">Колонки «Монеты» и «Последний вход» заполняются, когда игрок заходит в игру после обновления. Для таких игроков удобнее сортировка по опыту или по последнему заходу.</p>
+  </section>
+
+  <!-- МАССОВАЯ ВЫДАЧА -->
+  <section id="tab-bulk" class="pane" hidden>
+    <div class="pane-head"><h1>Массовая выдача</h1><p>Начисляет одинаковое количество монет сразу нескольким игрокам, например как компенсацию за сбой. Сначала вы увидите предпросмотр, и только потом выдача.</p></div>
+    <div class="card form">
+      <div class="step"><span class="step-n">1</span><h2>Кому выдать</h2></div>
+      <div class="radio-row">
+        <label class="radio"><input type="radio" name="bulk-mode" value="list" checked /><span>Список игроков<small>ID или ники, по одному в строке</small></span></label>
+        <label class="radio"><input type="radio" name="bulk-mode" value="recent" /><span>Недавно заходившие<small>все, кто был в игре последние N дней</small></span></label>
+      </div>
+      <textarea id="bulk-list" rows="6" placeholder="По одному ID или никнейму в строке"></textarea>
+      <div id="bulk-recent" class="fld" hidden><label for="bulk-days">За сколько последних дней</label><input id="bulk-days" type="number" min="1" max="90" value="7" /></div>
+
+      <div class="step"><span class="step-n">2</span><h2>Сколько и зачем</h2></div>
+      <div class="grid2">
+        <div class="fld"><label for="bulk-amount">Сумма каждому, монет</label>
+          <input id="bulk-amount" type="number" min="1" max="1000000" step="1" inputmode="numeric" placeholder="например, 500" /></div>
+        <div class="fld"><label for="bulk-reason">Причина (обязательно)</label>
+          <input id="bulk-reason" type="text" maxlength="300" placeholder="Например: компенсация за баг в дуэлях" /></div>
+      </div>
+
+      <div class="step"><span class="step-n">3</span><h2>Проверка</h2></div>
+      <div class="row"><button id="bulk-preview" class="btn btn-primary" type="button">Показать предпросмотр</button></div>
+      <div id="bulk-result"></div>
+    </div>
+  </section>
+
+  <!-- ЖУРНАЛ -->
+  <section id="tab-journal" class="pane" hidden>
+    <div class="pane-head"><h1>Журнал операций</h1><p>Все действия администраторов: кто, кому и что начислил, списал или заблокировал. Записи удалить нельзя.</p></div>
+    <div class="card filters">
+      <div class="filter-row">
+        <label class="fld"><span>Тип операции</span>
+          <select id="j-type" aria-label="Тип операции">
+            <option value="">Все операции</option><option value="credit">Начисление</option><option value="debit">Списание</option>
+            <option value="set">Установка баланса</option><option value="restore">Восстановление</option>
+            <option value="ban">Блокировка</option><option value="unban">Разблокировка</option><option value="note">Заметка</option>
+          </select></label>
+        <button id="j-refresh" class="btn" type="button">Обновить</button>
+      </div>
+    </div>
+    <div class="card table-wrap">
+      <table class="tbl"><thead><tr><th>Время</th><th>Админ</th><th>Операция</th><th>Игрок</th><th class="num">Сумма</th><th>Причина</th></tr></thead>
+        <tbody id="j-body"></tbody></table>
+      <div id="j-state" class="state"></div>
+    </div>
+    <div class="more"><button id="j-more" class="btn" type="button" hidden>Загрузить ещё</button></div>
+  </section>
+</div>
+
+<!-- Профиль игрока (боковая панель) -->
+<aside id="profile" class="drawer" hidden aria-label="Профиль игрока">
+  <div class="drawer-head"><h2 id="pf-title">Игрок</h2><button id="pf-close" class="btn btn-sm" type="button" aria-label="Закрыть"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-close"/></svg></button></div>
+  <div id="pf-body" class="drawer-body"></div>
+</aside>
+<div id="scrim" class="scrim" hidden></div>
+
+<!-- Диалог -->
+<div id="dlg" class="dlg" hidden><div class="dlg-card" role="dialog" aria-modal="true"><div id="dlg-body"></div></div></div>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/admin-app.js?v=3"></script>
+</body>
+</html>

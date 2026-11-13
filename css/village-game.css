@@ -1,0 +1,84 @@
+/* maper.chess — Деревня v6: казна, войско, осады на настоящей доске, задания. Подключать после css/village.css */
+.vx-gold { align-items: stretch; }
+.vx-gold-t { flex: 1; min-width: 0; }
+.vx-gold-n { display: block; margin-top: 4px; font: 600 24px/1.1 'Unbounded', Georgia, serif; color: var(--ink); }
+.vx-gold.full { border-color: rgba(238, 129, 149, .55); animation: vxPulse 1.6s ease-in-out infinite; }
+.vx-gold .btn { align-self: center; }
+@keyframes vxPulse { 50% { box-shadow: 0 0 0 4px rgba(238, 129, 149, .15); } }
+.vx-bar { display: block; height: 7px; margin: 8px 0 4px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); overflow: hidden; }
+.vx-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #c99a45, #f0cf8a); transition: width .6s ease; }
+.vx-stars { font-style: normal; font-size: 11px; letter-spacing: 1px; color: var(--gold); white-space: nowrap; }
+.vx-perk { display: block; margin-top: 4px; font: 700 11px/1.3 'Onest', sans-serif; font-style: normal; color: var(--ok); }
+.vx-perk.vg-stat { color: var(--ink-dim); font-weight: 600; }
+.vx-rar { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; vertical-align: middle; background: #9c9ca6; }
+.vx-rar.r1 { background: #72d6a3; } .vx-rar.r2 { background: #b98bf5; } .vx-rar.r3 { background: #e3bf7c; } .vx-rar.r4 { background: #ff9ad5; box-shadow: 0 0 8px #ff9ad5; }
+.vx-bonus { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 12px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--panel); }
+.vx-bonus .vl-label { width: 100%; margin: 0 0 4px; }
+
+.vg-pane { display: flex; flex-direction: column; gap: 10px; }
+.vg-stats, .vg-landbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.vg-landbar .vl-rename:last-child { margin-left: auto; }
+.vg-glyph { flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; background: radial-gradient(circle at 50% 120%, var(--tint-2), var(--panel-2) 70%); border: 1px solid var(--line); font: 400 26px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", serif; color: var(--gold); }
+.vg-n { font-style: normal; color: var(--gold); margin-left: 4px; }
+.vg-acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.vg-unit.locked { opacity: .55; }
+.vg-camp.on { opacity: .55; }
+.vg-mate { display: inline-flex; align-items: center; gap: 5px; margin-top: 2px; font: 800 11px/1.2 'Onest', sans-serif; color: var(--violet-3); }
+.vg-warn { margin: 0; padding: 8px 12px; border-radius: 10px; background: rgba(238, 129, 149, .12); border: 1px solid rgba(238, 129, 149, .35); font: 600 12px/1.35 'Onest', sans-serif; color: var(--ink); }
+.vg-pulse { border-color: rgba(227, 191, 124, .6) !important; color: var(--gold) !important; animation: vxPulse 1.6s ease-in-out infinite; }
+.vg-search { display: flex; gap: 6px; flex-wrap: wrap; }
+.vg-search .vl-input { flex: 1; min-width: 140px; margin: 0; }
+.vg-chron { display: flex; flex-direction: column; gap: 6px; }
+.vg-log { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); }
+.vg-log > div { flex: 1; min-width: 0; }
+.vg-log b { display: block; font: 700 12.5px/1.3 'Onest', sans-serif; }
+.vg-log small { font-size: 11px; }
+.vg-log.bad { border-color: rgba(238, 129, 149, .35); }
+.vg-log.good { border-color: rgba(114, 214, 163, .35); }
+.vg-bonus { margin-top: 4px; }
+.vg-visit-atk { width: 100%; margin-top: 10px; }
+.vg-kit .vl-kicker { margin-bottom: 0; }
+.vg-qhead { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
+.vg-qhead .vl-found-sub { font-size: 12.5px; margin-top: 4px; }
+.vg-qcount { flex: none; font: 600 26px/1 'Unbounded', Georgia, serif; color: var(--gold); }
+.vg-q.ready { border-color: rgba(227, 191, 124, .5); }
+.vg-q.on { opacity: .6; }
+.vg-q .vl-card-act { align-items: center; }
+
+/* ---------- осада: окно с шахматной доской ---------- */
+.vg-siege { position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 12px; background: rgba(6, 6, 12, .82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); overflow-y: auto; }
+.vg-siege.open { display: flex; animation: vgFade .22s ease; }
+body.vg-sieging { overflow: hidden; }
+.vg-s-card { --bs: min(86vw, 400px); width: min(460px, 100%); max-height: 98vh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 22px; background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line-2); box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .85); }
+.vg-s-head { display: flex; align-items: center; gap: 12px; }
+.vg-s-head h3 { margin: 0; font: 600 20px/1.15 'Unbounded', Georgia, serif; }
+.vg-s-head small { display: block; margin-top: 4px; font: 800 11px/1.2 'Onest', sans-serif; color: var(--violet-3); }
+.vg-s-head .vl-kicker { margin-bottom: 4px; }
+.vg-s-ic { flex: none; width: 50px; height: 50px; display: grid; place-items: center; border-radius: 15px; background: var(--tint-2); border: 1px solid rgba(185, 139, 245, .3); color: var(--gold); font: 400 28px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", serif; }
+.vg-s-play { display: flex; flex-direction: column; gap: 10px; }
+.vg-s-status { margin: 0; min-height: 18px; text-align: center; font: 700 13px/1.35 'Onest', sans-serif; color: var(--ink-dim); }
+.vg-s-boardwrap { display: flex; justify-content: center; }
+.vg-s-card .board { width: var(--bs); max-width: 100%; position: relative; }
+.vg-s-card .sq { font-size: calc(var(--bs) / 8 * .72); }
+.vg-s-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.vg-s-act { display: flex; gap: 8px; flex-wrap: wrap; }
+.vg-s-act .btn { flex: 1; min-width: 120px; margin: 0; padding: 12px 14px; }
+.vg-s-res[hidden], .vg-s-play[hidden] { display: none; }
+.vg-s-out { text-align: center; padding: 8px 4px 4px; display: flex; flex-direction: column; gap: 6px; align-items: center; animation: vgFade .35s ease; }
+.vg-s-out h4 { margin: 4px 0 2px; font: 600 24px/1.2 'Unbounded', Georgia, serif; }
+.vg-s-out.win h4 { color: var(--gold); }
+.vg-s-out.lose h4 { color: var(--danger); }
+.vg-s-out p { margin: 0; font: 600 13px/1.4 'Onest', sans-serif; }
+.vg-s-out .btn { width: 100%; margin-top: 10px; }
+.vg-s-big { font: 400 54px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", serif; color: var(--danger); }
+.vg-b-loot { margin: 4px 0; font: 800 16px/1.3 'Onest', sans-serif; color: var(--gold); }
+.vg-b-stars { display: flex; justify-content: center; gap: 6px; font-size: 38px; }
+.vg-b-stars i { font-style: normal; color: rgba(255, 255, 255, .16); }
+.vg-b-stars i.on { color: var(--gold); animation: vgStar .45s var(--d) ease both; text-shadow: 0 0 14px rgba(227, 191, 124, .6); }
+@keyframes vgStar { from { transform: scale(0) rotate(-90deg); } to { transform: scale(1) rotate(0); } }
+@keyframes vgFade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .vg-b-stars i.on, .vg-s-out, .vg-siege.open, .vg-pulse, .vx-gold.full { animation-duration: .01s !important; animation-delay: 0s !important; } }
+@media (max-width: 380px) { .vg-s-card { padding: 12px; } }
+
+.vg-camp > .shop-btn, .vg-tgt .vl-card-act { grid-column: 1 / -1; }
+.vg-camp > .shop-btn { width: 100%; }

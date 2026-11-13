@@ -1,0 +1,274 @@
+/* =====================================================================
+   maper.chess — streak-up.css
+   Церемония «повышение огонька»: показывается после задачки / партии / ежедневки,
+   когда серия выросла. Логика и тайминги — js/streak-up.js.
+   Подключать ПОСЛЕ home-deco.css (используем его keyframes flO/flM/flI/flG и .flame).
+   Всё под префиксом .su-, глобальные стили не трогаем.
+   ===================================================================== */
+
+.su {
+  --su-a: #f3a560;            /* акцент: кольцо, обводки */
+  --su-rgb: 255, 150, 70;     /* тот же цвет для rgba() */
+  --su-e: #ffc46b;            /* искры */
+  --su-ff: none;              /* фильтр пламени (сдвиг оттенка на старших рангах) */
+  --su-k: 1;                  /* размер пламени растёт с рангом */
+  position: fixed; inset: 0; z-index: 10010;      /* выше .cx (10000), ниже канваса салюта (10020) */
+  display: flex; align-items: center; justify-content: center;
+  padding: max(14px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom));
+  overflow: hidden; opacity: 0; transition: opacity .35s ease;
+  -webkit-tap-highlight-color: transparent; user-select: none;
+  font-family: var(--font-ui, system-ui, sans-serif); color: var(--ink, #eceae4);
+}
+.su.s-in { opacity: 1; }
+.su.s-out { opacity: 0; transition: opacity .45s ease .12s; }
+
+/* ранги: цвет и размер пламени. 1 Пешка · 2 Конь · 3 Слон · 4 Ладья · 5 Ферзь · 6 Король */
+.su[data-tier="2"] { --su-k: 1.04; }
+.su[data-tier="3"] { --su-k: 1.08; --su-a: #ffb04a; --su-rgb: 255, 176, 74; }
+.su[data-tier="4"] { --su-k: 1.12; --su-a: #ff8a3a; --su-rgb: 255, 128, 50; --su-e: #ffb15a; }
+.su[data-tier="5"] { --su-k: 1.16; --su-a: #b98bf5; --su-rgb: 140, 124, 250; --su-e: #cfc7ff; --su-ff: hue-rotate(-108deg) saturate(1.15) brightness(1.05); }
+.su[data-tier="6"] { --su-k: 1.2; --su-a: #ecc985; --su-rgb: 236, 201, 133; --su-e: #fff0c4; --su-ff: hue-rotate(24deg) saturate(.92) brightness(1.22); }
+
+/* ---------- фон ---------- */
+.su-scrim {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(70% 55% at 50% 36%, rgba(var(--su-rgb), .16), transparent 70%),
+    radial-gradient(90% 70% at 50% 100%, rgba(142, 85, 230, .16), transparent 70%),
+    rgba(9, 10, 13, .94);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  transition: background .8s ease;
+}
+/* шахматная сетка, растворяющаяся к краям: «мы всё ещё на доске» */
+.su-board {
+  position: absolute; inset: 0; opacity: 0; transition: opacity 1s ease .1s;
+  background-image: conic-gradient(rgba(255,255,255,.05) 25% , transparent 0 50%, rgba(255,255,255,.05) 0 75%, transparent 0);
+  background-size: 72px 72px; background-position: center top;
+  -webkit-mask-image: radial-gradient(60% 46% at 50% 34%, #000, transparent 100%);
+          mask-image: radial-gradient(60% 46% at 50% 34%, #000, transparent 100%);
+}
+.su.s-in .su-board { opacity: 1; }
+
+.su-stage {
+  position: relative; width: min(100%, 400px); max-height: 100%;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 0; overflow: visible;
+}
+
+/* ---------- надпись сверху ---------- */
+.su-eyebrow {
+  margin: 0 0 12px; font-size: 11.5px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--su-a); opacity: 0; transform: translateY(-8px);
+  transition: opacity .5s ease .1s, transform .5s ease .1s, color .8s ease;
+}
+.su.s-in .su-eyebrow { opacity: .95; transform: none; }
+
+/* ---------- эмблема: кольцо + пламя + фигура ---------- */
+.su-emblem { position: relative; width: 188px; height: 188px; flex: none; }
+.su-emblem-in { position: absolute; inset: 0; opacity: 0; transform: scale(.7); transition: opacity .45s ease .15s, transform .6s cubic-bezier(.2,1.25,.3,1) .15s; }
+.su.s-in .su-emblem-in { opacity: 1; transform: none; }
+
+.su-ring { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; transform: rotate(-90deg); }
+.su-ring circle { fill: none; stroke-width: 4.5; }
+.su-ring-bg { stroke: rgba(255,255,255,.09); }
+.su-ring-fg {
+  stroke: var(--su-a); stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100;
+  transition: stroke-dashoffset 1s cubic-bezier(.3,.8,.2,1), stroke .8s ease, filter .5s ease;
+  filter: drop-shadow(0 0 5px rgba(var(--su-rgb), .7));
+}
+.su.s-full .su-ring-fg { filter: drop-shadow(0 0 10px rgba(var(--su-rgb), 1)) brightness(1.25); }
+
+.su-halo {
+  position: absolute; inset: 14px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 62%, rgba(var(--su-rgb), .0), rgba(var(--su-rgb), 0) 70%);
+  transition: background 1s ease;
+}
+.su.s-lit .su-halo { background: radial-gradient(circle at 50% 62%, rgba(var(--su-rgb), .34), rgba(var(--su-rgb), .06) 62%, transparent 74%); }
+
+.su-rays {
+  position: absolute; left: 50%; top: 50%; width: 170vmax; height: 170vmax; margin: -85vmax 0 0 -85vmax;
+  background: repeating-conic-gradient(from 0deg, rgba(var(--su-rgb), .13) 0 5deg, transparent 5deg 15deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0, transparent 42%);
+          mask-image: radial-gradient(circle, #000 0, transparent 42%);
+  opacity: 0; transition: opacity 1.2s ease; animation: suSpin 46s linear infinite; pointer-events: none;
+}
+.su.s-rays .su-rays { opacity: 1; }
+@keyframes suSpin { to { transform: rotate(360deg); } }
+
+.su-shock {
+  position: absolute; left: 50%; top: 50%; width: 150px; height: 150px; margin: -75px 0 0 -75px; border-radius: 50%;
+  border: 2px solid rgba(var(--su-rgb), .9); opacity: 0; pointer-events: none;
+}
+.su-shock.go { animation: suShock .95s cubic-bezier(.15,.7,.25,1) forwards; }
+@keyframes suShock { 0% { transform: scale(.35); opacity: .85; border-width: 5px; } 100% { transform: scale(2.5); opacity: 0; border-width: 1px; } }
+
+/* пламя */
+.su-flame { position: absolute; left: 50%; top: 52%; width: 0; height: 0; transform: scale(var(--su-k)); transition: transform .9s cubic-bezier(.2,1.35,.3,1); }
+.su-flame-k { position: absolute; left: 0; top: 0; transform-origin: 50% 90%; }
+.su-flame .flame { --fs: 86px; position: absolute; left: calc(var(--fs) / -2); top: calc(var(--fs) * -1.05); }
+.su-flame .flame .fl { transition: filter .9s ease, opacity .6s ease; }
+.su.s-lit .su-flame .flame .fl { filter: var(--su-ff); opacity: 1; }
+.su.s-lit .su-flame .fl-glow { opacity: 1; animation: flG 2.4s ease-in-out infinite; }
+.su.s-lit .su-flame .fl-o { animation: flO 2s ease-in-out infinite; }
+.su.s-lit .su-flame .fl-m { animation: flM 1.5s ease-in-out infinite; }
+.su.s-lit .su-flame .fl-i { animation: flI 1.1s ease-in-out infinite; }
+.su.s-lit .su-flame .fl-sp { animation: flSp 2.6s ease-in infinite; }
+.su.s-lit .su-flame .fl-sp.s2 { animation-delay: .9s; }
+.su.s-lit .su-flame .fl-sp.s3 { animation-delay: 1.7s; }
+.su.pre-off .su-flame .flame .fl { opacity: .22; }          /* «0 → 1»: огня ещё нет */
+
+.su-flame-k.kick    { animation: suKick .85s cubic-bezier(.2,.9,.25,1) both; }
+.su-flame-k.squeeze { animation: suSqueeze .38s ease-in both; }
+@keyframes suKick {
+  0%   { transform: scale(.5, .45); filter: brightness(2.6); }
+  42%  { transform: scale(1.2, 1.3); filter: brightness(1.6); }
+  70%  { transform: scale(.96, .98); filter: brightness(1.1); }
+  100% { transform: scale(1); filter: none; }
+}
+@keyframes suSqueeze { to { transform: scale(.78, .66); filter: brightness(2.4) saturate(.6); } }
+
+/* фигура, «горящая» в сердце пламени */
+.su-piece { position: absolute; left: 50%; top: 59%; width: 0; height: 0; }
+.su-pc {
+  position: absolute; left: -26px; top: -30px; width: 52px; height: 60px; font-size: 52px; line-height: 1;
+  color: #1b1226; display: grid; place-items: center;
+  filter: grayscale(1) brightness(1.6) opacity(.5);
+  transition: filter .6s ease;
+}
+.su-pc svg { width: 100%; height: 100%; display: block; }
+.su.s-lit .su-pc { filter: drop-shadow(0 0 1.2px rgba(255, 226, 170, .95)) drop-shadow(0 3px 7px rgba(20, 8, 4, .5)); }
+.su-pc.new { opacity: 0; }
+.su-pc.out { animation: suPcOut .55s ease-in forwards; }
+.su-pc.in  { animation: suPcIn .9s cubic-bezier(.2,1.2,.3,1) forwards; }
+@keyframes suPcOut { to { opacity: 0; transform: scale(1.35) translateY(-8px); filter: blur(7px) brightness(2.5); } }
+@keyframes suPcIn {
+  0%   { opacity: 0; transform: translateY(-70px) scale(1.7) rotate(-16deg); filter: blur(5px) brightness(2.4); }
+  55%  { opacity: 1; transform: translateY(7px) scale(.93) rotate(2deg); filter: none; }
+  100% { opacity: 1; transform: none; }
+}
+
+/* искры */
+.su-parts { position: absolute; left: 50%; top: 56%; width: 0; height: 0; pointer-events: none; }
+.su-em {
+  position: absolute; left: 0; top: 0; width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  border-radius: 50%; background: var(--su-e); box-shadow: 0 0 9px 1px rgba(var(--su-rgb), .9);
+  opacity: 0; animation: suEm var(--t) cubic-bezier(.2,.7,.4,1) var(--d) forwards;
+}
+.su-em.amb { animation: suEmA var(--t) ease-out var(--d) infinite; }
+@keyframes suEm  { 0% { opacity: 0; transform: translate(0,0) scale(.4); } 12% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(.2); } }
+@keyframes suEmA { 0% { opacity: 0; transform: translate(0,0) scale(.5); } 15% { opacity: .9; } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(.15); } }
+
+/* ---------- счётчик дней ---------- */
+.su-count { margin-top: 4px; display: flex; flex-direction: column; align-items: center; }
+.su-digits {
+  display: inline-flex; font-family: var(--font-display, Georgia, serif); font-weight: 600; font-size: 68px; line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.02em;
+  text-shadow: 0 0 26px rgba(var(--su-rgb), .45); color: #fbf6ea;
+  opacity: 0; transform: translateY(6px); transition: opacity .4s ease .1s, transform .5s ease .1s;
+}
+.su.s-in .su-digits { opacity: 1; transform: none; }
+.su-d { display: inline-block; height: 1.06em; overflow: hidden; vertical-align: top; }
+.su-d b, .su-d em { display: block; font-style: normal; font-weight: inherit; height: 1.06em; line-height: 1.06em; }
+.su-d.roll em { transform: translateY(0); }
+.su.s-count .su-d.roll em { transform: translateY(-1.06em); transition: transform .85s cubic-bezier(.2,.9,.2,1.12); }
+.su-unit { font-size: 13.5px; color: var(--ink-dim, #9c9ca6); margin-top: 2px; letter-spacing: .02em; }
+
+/* название ранга */
+.su-tier {
+  margin: 10px 0 0; min-height: 32px; font-family: var(--font-display, Georgia, serif); font-weight: 600; font-size: 25px; line-height: 1.15;
+  color: var(--su-a); transition: color .8s ease; display: flex; flex-wrap: wrap; justify-content: center;
+}
+.su-tier span { display: inline-block; white-space: pre; opacity: 0; transform: translateY(14px); filter: blur(5px); }
+.su-tier.show span { animation: suLetter .55s cubic-bezier(.2,.9,.25,1) calc(var(--i) * 26ms) forwards; }
+@keyframes suLetter { to { opacity: 1; transform: none; filter: none; } }
+
+/* лесенка рангов: пешка → король */
+.su-ladder { display: flex; gap: 4px; margin-top: 12px; align-items: flex-end; opacity: 0; transform: translateY(6px); transition: opacity .5s ease .5s, transform .5s ease .5s; }
+.su.s-in .su-ladder { opacity: 1; transform: none; }
+.su-pip { width: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; color: #eceae4; transition: transform .5s cubic-bezier(.2,1.4,.3,1); position: relative; }
+.su-pip .pp { width: 24px; height: 26px; font-size: 24px; line-height: 1; display: grid; place-items: center; opacity: .26; filter: grayscale(1); transition: opacity .5s ease, filter .5s ease; }
+.su-pip .pp svg { width: 100%; height: 100%; display: block; }
+.su-pip small { font-size: 10px; font-weight: 700; color: var(--ink-faint, #6b6d77); letter-spacing: .04em; transition: color .5s ease; }
+.su-pip.done .pp { opacity: .85; filter: none; }
+.su-pip.done small { color: var(--ink-dim, #9c9ca6); }
+.su-pip.now { transform: scale(1.22) translateY(-2px); }
+.su-pip.now .pp { opacity: 1; filter: drop-shadow(0 0 7px rgba(var(--su-rgb), .85)); }
+.su-pip.now small { color: var(--su-a); }
+.su-pip.ping::after { content: ""; position: absolute; left: 50%; top: 13px; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 2px solid var(--su-a); opacity: 0; animation: suPing .9s ease-out forwards; }
+@keyframes suPing { 0% { transform: scale(.4); opacity: .9; } 100% { transform: scale(2.2); opacity: 0; } }
+
+/* ---------- неделя: шахматная горизонталь ---------- */
+.su-week { position: relative; display: flex; gap: 6px; margin-top: 16px; opacity: 0; transform: translateY(8px); transition: opacity .45s ease, transform .45s ease; }
+.su-week.show { opacity: 1; transform: none; }
+.su-wd { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.su-wd i { font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint, #6b6d77); }
+.su-wd.today i { color: var(--su-a); }
+.su-sq {
+  position: relative; width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center;
+  background: var(--sq-dark, #30323b); border: 1px solid var(--line, rgba(255,255,255,.07));
+  transition: box-shadow .4s ease, border-color .4s ease;
+}
+.su-wd:nth-child(odd) .su-sq { background: var(--sq-light, #70737e); }
+.su-wd:nth-child(odd) .su-sq { filter: saturate(.9) brightness(.82); }
+.su-sq .flame { --fs: 18px; }
+.su-sq .snow { width: 18px; height: 18px; color: var(--ice, #91d2f7); }
+.su-wd.today .su-sq { border-color: rgba(var(--su-rgb), .65); box-shadow: 0 0 0 1px rgba(var(--su-rgb), .25); }
+.su-wd.today.lit .su-sq { box-shadow: 0 0 0 1px rgba(var(--su-rgb), .5), 0 0 18px rgba(var(--su-rgb), .65); }
+.su-wd.today .su-sq .flame { opacity: 0; transform: scale(.3); }
+.su-wd.today.lit .su-sq .flame { animation: suLand .6s cubic-bezier(.2,1.5,.3,1) forwards; }
+@keyframes suLand { 0% { opacity: 0; transform: scale(.3); } 55% { opacity: 1; transform: scale(1.55); } 100% { opacity: 1; transform: scale(1); } }
+.su-wd.today.lit .su-sq { animation: suSquash .5s ease; }
+@keyframes suSquash { 0% { transform: scale(1); } 35% { transform: scale(.88, .8); } 70% { transform: scale(1.08, 1.12); } 100% { transform: none; } }
+.su-token { position: absolute; left: 0; top: 0; --fs: 18px; z-index: 3; pointer-events: none; opacity: 0; filter: drop-shadow(0 0 7px rgba(var(--su-rgb), .9)); }
+.su-token .fl { filter: none !important; opacity: 1 !important; }
+
+/* ---------- награды ---------- */
+.su-chips { display: flex; gap: 8px; margin-top: 16px; min-height: 36px; justify-content: center; flex-wrap: wrap; }
+.su-chip {
+  display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 999px; font-weight: 800; font-size: 14px;
+  background: var(--panel-2, #1e1a27); border: 1px solid var(--line-2, rgba(255,255,255,.14)); opacity: 0; transform: scale(.6);
+}
+.su-chip.coin { color: var(--gold, #e3bf7c); border-color: rgba(227, 191, 124, .32); }
+.su-chip.freeze { color: var(--ice, #91d2f7); border-color: rgba(145, 210, 247, .32); }
+.su-chip .snow { width: 15px; height: 15px; }
+.su-chip.pop { animation: suChip .55s cubic-bezier(.2,1.5,.3,1) forwards; }
+@keyframes suChip { 0% { opacity: 0; transform: scale(.6); } 60% { opacity: 1; transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
+
+.su-goal { margin: 12px 0 0; min-height: 18px; font-size: 12.5px; color: var(--ink-dim, #9c9ca6); opacity: 0; transition: opacity .5s ease; }
+.su-goal.show { opacity: 1; }
+
+.su-go { margin-top: 16px; min-width: 190px; opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity .45s ease, transform .45s ease; }
+.su-go.show { opacity: 1; transform: none; pointer-events: auto; }
+
+/* ---------- пульс в шапке после «приземления» ---------- */
+.su-pulse { animation: suPulse .75s cubic-bezier(.2,1.4,.3,1); }
+.pill-streak.su-pulse { box-shadow: 0 0 0 1px rgba(243,165,96,.6), 0 0 22px rgba(255,140,60,.65); }
+.pill-coins.su-pulse  { box-shadow: 0 0 0 1px rgba(227,191,124,.6), 0 0 20px rgba(227,191,124,.5); }
+@keyframes suPulse { 0% { transform: scale(1); } 35% { transform: scale(1.22); } 100% { transform: scale(1); } }
+
+/* ---------- компактные экраны ---------- */
+@media (max-height: 700px) {
+  .su-emblem { width: 150px; height: 150px; }
+  .su-flame .flame { --fs: 70px; }
+  .su-pc { transform: scale(.82); }
+  .su-digits { font-size: 54px; }
+  .su-tier { font-size: 21px; margin-top: 6px; min-height: 26px; }
+  .su-ladder { margin-top: 8px; }
+  .su-week, .su-chips { margin-top: 11px; }
+  .su-go { margin-top: 12px; }
+}
+@media (max-height: 590px) { .su-ladder { display: none; } }
+@media (min-width: 900px) and (min-height: 760px) {
+  .su-emblem { width: 220px; height: 220px; }
+  .su-flame .flame { --fs: 100px; }
+  .su-pc { transform: scale(1.14); }
+  .su-digits { font-size: 80px; }
+  .su-tier { font-size: 30px; }
+  .su-sq { width: 44px; height: 44px; }
+}
+
+/* ---------- «уменьшить движение» ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .su *, .su *::before, .su *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+  .su-rays { display: none; }
+}

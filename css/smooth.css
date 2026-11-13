@@ -1,0 +1,182 @@
+/* maper.chess — smooth.css
+   Единый слой плавности. Подключается ПОСЛЕДНИМ (после move-fx.css), поэтому мягко переопределяет резкие места:
+   мгновенные смены состояний, «прыгающие» и мигающие анимации, жёсткие обводки, тряску и яркие вспышки.
+   Логика: всё появляется и исчезает через мягкое замедление, пульсации тише и медленнее, контуры тоньше. */
+
+/* ================= 0. токены ================= */
+:root {
+  --ease-soft: cubic-bezier(.22, .61, .36, 1);   /* спокойное замедление */
+  --ease-out: cubic-bezier(.16, 1, .3, 1);       /* мягкое «приплывание» */
+  --ease-io: cubic-bezier(.4, 0, .2, 1);         /* вход и выход без рывка */
+  --bx-ease: var(--ease-out);
+
+  /* чуть приглушённый текст и линии: меньше контраста — меньше усталость глаз */
+  --ink: #e4e2dc;
+  --line-2: rgba(255, 255, 255, .12);
+  --line-3: rgba(255, 255, 255, .2);
+}
+
+html { scroll-behavior: smooth; }
+
+/* ================= 1. интерактив: никаких мгновенных смен ================= */
+.btn, .ctrl-btn, .icon-btn, .nav-btn, .mode-tab, .tier-tab, .shop-tab, .lang-btn, .modal-x, .shop-btn,
+.level-card, .shop-card, .continue-card, .stat-card, .hp-card, .vl-card, .ms-item, .tg-card, .pill,
+.jump-current, .streak-freeze {
+  transition:
+    background-color .28s var(--ease-soft), border-color .28s var(--ease-soft), color .28s var(--ease-soft),
+    box-shadow .32s var(--ease-soft), transform .26s var(--ease-soft), opacity .28s var(--ease-soft),
+    filter .28s var(--ease-soft);
+}
+.btn:active, .ctrl-btn:active, .level-card:active, .shop-card:active, .continue-card:active { transform: scale(.985); }
+.btn-primary:hover { filter: brightness(1.05); }
+.xp-fill { transition: width .9s var(--ease-out); }
+.game-status, .gs-dot { transition: color .35s var(--ease-soft), background-color .35s var(--ease-soft), box-shadow .35s var(--ease-soft); }
+
+/* ================= 2. экраны, окна, подсказки ================= */
+@keyframes smViewIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.view.active:not(#view-village) { animation: smViewIn .42s var(--ease-out) both; }
+/* остальные экраны — мягкое «вплывание» блоков по очереди (у главной своё, в boost.css) */
+@keyframes smItemIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.view.active:not(#view-home):not(#view-game):not(#view-village) > * { animation: smItemIn .5s var(--ease-out) backwards; }
+.view.active:not(#view-home):not(#view-game):not(#view-village) > *:nth-child(2) { animation-delay: .04s; }
+.view.active:not(#view-home):not(#view-game):not(#view-village) > *:nth-child(3) { animation-delay: .08s; }
+.view.active:not(#view-home):not(#view-game):not(#view-village) > *:nth-child(4) { animation-delay: .12s; }
+.view.active:not(#view-home):not(#view-game):not(#view-village) > *:nth-child(5) { animation-delay: .16s; }
+.view.active:not(#view-home):not(#view-game):not(#view-village) > *:nth-child(n+6) { animation-delay: .2s; }
+
+.modal { background: rgba(5, 6, 8, .6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); transition: opacity .35s var(--ease-soft); }
+.modal-card { opacity: 0; transform: translateY(22px) scale(.985); transition: transform .5s var(--ease-out), opacity .35s var(--ease-soft); }
+.modal.open .modal-card { opacity: 1; transform: none; }
+
+.pp-overlay { background: rgba(5, 6, 8, .62); transition: opacity .4s var(--ease-soft), visibility .4s var(--ease-soft); }
+.pp-card { transition: transform .5s var(--ease-out); }
+
+.toast { transition: opacity .4s var(--ease-soft), transform .5s var(--ease-out); }
+
+/* ================= 3. доска ================= */
+.sq { transition: background-color .3s var(--ease-soft), box-shadow .3s var(--ease-soft), filter .25s var(--ease-soft); }
+.sq svg { transition: transform .3s var(--ease-soft), filter .3s var(--ease-soft); }
+.sq::after, .sq::before { transition: opacity .25s var(--ease-soft); }
+
+/* последний ход: оттенок читается из --last-hl (мой — фиолетовый, соперника — тёплый), но очень деликатно */
+.sq-last { box-shadow: inset 0 0 0 100px var(--last-hl, rgba(227, 191, 124, .15)); }
+.sq.mf-me.mf-from  { --last-hl: rgba(160, 112, 240, .16); }
+.sq.mf-me.mf-to    { --last-hl: rgba(160, 112, 240, .28); outline: 1.5px solid rgba(184, 173, 255, .5); outline-offset: -2px; }
+.sq.mf-opp.mf-from { --last-hl: rgba(255, 148, 104, .16); }
+.sq.mf-opp.mf-to   { --last-hl: rgba(255, 148, 104, .28); outline: 1.5px solid rgba(255, 170, 130, .5); outline-offset: -2px; }
+
+/* выбранная клетка: тонкая рамка + лёгкая заливка, фигура приподнимается плавно */
+.sq-selected {
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--sq-active) 62%, transparent),
+              inset 0 0 0 100px color-mix(in srgb, var(--sq-active) 15%, transparent);
+}
+@keyframes bxLift { from { transform: none; } to { transform: scale(1.06) translateY(-2%); } }
+.sq-selected svg { animation-duration: .32s; animation-timing-function: var(--ease-out); }
+
+/* возможные ходы: статичные мягкие точки (раньше пульсировали), появляются плавно */
+@keyframes smDotIn { from { opacity: 0; transform: scale(.4); } to { opacity: .5; transform: none; } }
+.sq-target::after { width: 26%; height: 26%; opacity: .5; animation: smDotIn .3s var(--ease-out) backwards; }
+.sq-target.sq-cap-target::after {
+  width: 88%; height: 88%; background: transparent; opacity: .6; border: 2.5px solid var(--sq-active); box-shadow: none;
+  animation: smDotIn .3s var(--ease-out) backwards;
+}
+@media (hover: hover) { .sq-target:hover { filter: brightness(1.07); } }
+
+/* шах: мягкое свечение вместо жирной рамки; фигура «вздыхает» один раз, без качания */
+.sq-check { box-shadow: inset 0 0 0 2px rgba(238, 129, 149, .55), inset 0 0 22px rgba(238, 129, 149, .3); }
+@keyframes bxCheck { 0%, 100% { transform: none; } 45% { transform: scale(1.05); } }
+.sq.sq-check svg { animation: bxCheck 1.4s var(--ease-io) 1; }
+
+/* приземление и взятие — без «отскока» */
+@keyframes bxLand { 0% { transform: translateY(-5%) scale(1.05); } 100% { transform: none; } }
+.sq.bx-land svg { animation-duration: .45s; animation-timing-function: var(--ease-out); }
+.sq.bx-land.bx-land-ai svg { animation-duration: .52s; }
+@keyframes bxBurst { from { transform: scale(.6); opacity: .5; } to { transform: scale(1.35); opacity: 0; } }
+.sq.bx-cap::before { border-width: 2px; animation-duration: .85s; animation-timing-function: var(--ease-soft); }
+
+/* летящая фигура: мягкая посадка, тонкое кольцо, долгое затухание */
+@keyframes mfSettle { 0% { transform: scale(1.05); } 100% { transform: none; } }
+.sq.mf-settle svg { animation: mfSettle .5s var(--ease-out) both; }
+.mf-ping { border-width: 2px; border-color: rgba(var(--mf-c), .55); animation: mfPing .95s var(--ease-soft) both; }
+@keyframes mfPing { from { transform: scale(.65); opacity: .55; } to { transform: scale(1.25); opacity: 0; } }
+
+/* вспышка по краю доски: едва заметное свечение вместо яркой рамки */
+.board.mf-flash-me  { animation: mfFlashMe 1.5s var(--ease-soft); }
+.board.mf-flash-opp { animation: mfFlashOpp 1.5s var(--ease-soft); }
+@keyframes mfFlashMe {
+  0%   { box-shadow: 0 0 0 0 rgba(160, 112, 240, 0), 0 18px 40px -16px rgba(0, 0, 0, .7); }
+  30%  { box-shadow: 0 0 0 2px rgba(160, 112, 240, .22), 0 0 22px 0 rgba(160, 112, 240, .2), 0 18px 40px -16px rgba(0, 0, 0, .7); }
+  100% { box-shadow: 0 0 0 0 rgba(160, 112, 240, 0), 0 18px 40px -16px rgba(0, 0, 0, .7); }
+}
+@keyframes mfFlashOpp {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 148, 104, 0), 0 18px 40px -16px rgba(0, 0, 0, .7); }
+  30%  { box-shadow: 0 0 0 2px rgba(255, 148, 104, .24), 0 0 22px 0 rgba(255, 148, 104, .2), 0 18px 40px -16px rgba(0, 0, 0, .7); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 148, 104, 0), 0 18px 40px -16px rgba(0, 0, 0, .7); }
+}
+
+/* плашка «Вы · e4» */
+.mf-chip {
+  color: #ece9f8; background: rgba(28, 26, 44, .78); border-color: rgba(var(--mf-c), .5);
+  box-shadow: 0 6px 18px -8px rgba(0, 0, 0, .6); animation: smChip 2s var(--ease-soft) both;
+}
+@keyframes smChip {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+  15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  78%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-3px); }
+}
+
+/* ================= 4. пульсации и свечения: тише и медленнее ================= */
+@keyframes bxBreath {
+  0%, 100% { box-shadow: 0 14px 30px -12px var(--bx-glow), 0 0 0 0 rgba(142, 85, 230, .16), inset 0 1px 0 rgba(255, 255, 255, .16); }
+  50%      { box-shadow: 0 16px 34px -10px var(--bx-glow), 0 0 0 5px rgba(142, 85, 230, 0), inset 0 1px 0 rgba(255, 255, 255, .16); }
+}
+#view-home.home-new .hp-big, .bx-play, #modal-next:not([hidden]) { animation-duration: 4.4s; }
+@keyframes bxSheen {
+  0%   { transform: translateX(-130%) skewX(-18deg); opacity: 0; }
+  12%  { opacity: .55; }
+  50%  { opacity: .55; }
+  60%, 100% { transform: translateX(260%) skewX(-18deg); opacity: 0; }
+}
+@keyframes bxBump { 0% { transform: scale(1); } 40% { transform: scale(1.09); } 100% { transform: scale(1); } }
+.pill.bx-bump { animation-duration: .7s; }
+
+@keyframes gsPulse { 0%, 100% { opacity: 1; } 50% { opacity: .65; } }
+.gs-dot.wait, .dg-status:not(.mine) .gs-dot { animation-duration: 2.2s; }
+.dg-status.mine .gs-dot { animation-duration: 2.6s; }
+.dg-clock.low.active { animation-duration: 1.8s; }
+@keyframes vxPulse { 50% { box-shadow: 0 0 0 3px rgba(238, 129, 149, .1); } }
+.vx-gold.full, .vg-pulse { animation-duration: 2.8s; }
+@keyframes trPulse { to { transform: scale(1.03); } }
+.tr-pill.low { animation-duration: 1.2s; }
+@keyframes tkPulse { 50% { box-shadow: 0 0 0 3px rgba(114, 214, 163, .12); } }
+.tk-tag.real.mine { animation-duration: 2.4s; }
+@keyframes anHint { 50% { box-shadow: inset 0 0 0 2px var(--gold), inset 0 0 0 100vmax rgba(227, 191, 124, .13); } }
+.an-board .sq.an-sq-hint { animation-duration: 2.4s; }
+@keyframes anPulse { 50% { opacity: .7; } }
+.an-arrow.pulse { animation-duration: .35s, 2.4s; }
+@keyframes anGlow { 50% { box-shadow: 0 0 0 3px rgba(142, 85, 230, .1); } }
+@keyframes ppBlink { 0%, 100% { opacity: 1; } 50% { opacity: .65; } }
+@keyframes dfxBreath { 0%, 100% { opacity: 1; } 50% { opacity: .75; } }
+@keyframes ntDot { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+@keyframes decoFloat { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-5px) rotate(1.5deg); } }
+
+/* ================= 5. оверлей результата: без тряски, дольше и мягче ================= */
+.fx-overlay { background: rgba(7, 8, 10, .7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); transition: opacity .6s var(--ease-soft), visibility .6s var(--ease-soft); }
+.fx-overlay.show { animation-duration: .45s; }
+@keyframes fxPop { 0% { transform: scale(.94) translateY(10px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes fxPopShake { 0% { transform: scale(.94) translateY(8px); opacity: 0; } 100% { transform: none; opacity: 1; } }   /* «МИМО» больше не трясётся */
+.fx-box { animation-duration: .75s; animation-timing-function: var(--ease-out); }
+.fx-overlay[data-fx="fail"] .fx-box { animation-duration: .75s; animation-timing-function: var(--ease-out); }
+.fx-glyph { animation-duration: .7s; animation-timing-function: var(--ease-out); }
+.fx-overlay.show .fx-particles i { animation-duration: 1.7s; }
+.pp-ava-wrap::before { border-color: rgba(255, 255, 255, .14); }
+
+/* ================= 6. доступность: «уменьшить движение» ================= */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important;
+    transition-duration: .01ms !important;
+  }
+}

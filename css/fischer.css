@@ -1,0 +1,70 @@
+/* maper.chess — «Шахматы Фишера» (js/fischer.js). Подключать после остальных стилей. */
+
+/* ---------- шапка экрана ---------- */
+.fi-hero { display: flex; align-items: center; gap: 14px; margin: 0 0 6px; }
+.fi-hero-ico {
+  flex: none; width: 52px; height: 52px; display: grid; place-items: center; border-radius: 16px;
+  color: var(--violet-3, #dcc6ff); background: var(--tint-2, rgba(142, 85, 230, .22));
+  border: 1px solid rgba(185, 139, 245, .35);
+}
+.fi-hero-ico svg { width: 28px; height: 28px; }
+.fi-kicker { display: block; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--violet-2, #b98bf5); }
+.fi-h { margin: 2px 0 0; }
+.fi-sub { margin: 4px 0 14px; line-height: 1.55; }
+
+/* ---------- предпросмотр расстановки ---------- */
+.fi-board-card { padding: 14px; margin-bottom: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.fi-prev { width: 100%; max-width: 360px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 1px var(--line-2); }
+.fi-row { display: grid; grid-template-columns: repeat(8, 1fr); }
+.fi-gap { margin-bottom: 6px; position: relative; }
+.fi-sq { aspect-ratio: 1; display: grid; place-items: center; font-style: normal; font-size: clamp(16px, 5.4vw, 30px); line-height: 1; }
+.fi-sq.l { background: var(--sq-light, #70737e); }
+.fi-sq.d { background: var(--sq-dark, #30323b); }
+.fi-sq svg { width: 86%; height: 86%; display: block; }
+.fi-prev-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.fi-prev-foot b { font-size: 13px; font-weight: 700; color: var(--ink); }
+.fi-shuffle { white-space: nowrap; }
+
+/* ---------- блоки настроек ---------- */
+.fi-card-box { padding: 16px; margin-bottom: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.fi-lbl { margin: 0 0 8px; font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); }
+.fi-card-box .du-tc-row { margin-bottom: 14px; flex-wrap: wrap; }
+.fi-note { margin: 0 0 14px; font-size: 13px; line-height: 1.55; color: var(--ink-dim); }
+.fi-play { width: 100%; }
+.fi-rules { margin: 12px 4px 20px; font-size: 12px; line-height: 1.5; text-align: center; color: var(--ink-faint); }
+.fi-friends { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; margin: 12px 0; }
+
+/* ---------- карточка на главной ---------- */
+.fi-card {
+  position: relative; display: flex; align-items: center; gap: 14px; width: 100%; margin: 0 0 14px; padding: 16px 18px;
+  text-align: left; color: var(--ink); overflow: hidden; cursor: pointer;
+  background: linear-gradient(135deg, rgba(142, 85, 230, .22), rgba(95, 47, 184, .08) 60%, var(--panel));
+  border: 1px solid rgba(185, 139, 245, .35); border-radius: var(--radius);
+  transition: transform .12s ease, border-color .15s ease, box-shadow .2s ease;
+}
+.fi-card:active { transform: scale(.985); }
+.fi-card:focus-visible { outline: 2px solid var(--violet-2, #b98bf5); outline-offset: 3px; }
+.fi-card-ico {
+  flex: none; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px;
+  color: var(--violet-3, #dcc6ff); background: rgba(142, 85, 230, .26); border: 1px solid rgba(185, 139, 245, .4);
+}
+.fi-card-ico svg { width: 26px; height: 26px; }
+.fi-card-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.fi-card-k { font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--violet-2, #b98bf5); }
+.fi-card-body b { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+.fi-card-body small { font-size: 12.5px; line-height: 1.4; color: var(--ink-dim); }
+.fi-card-go { flex: none; font-size: 20px; color: var(--violet-2, #b98bf5); transition: transform .15s ease; }
+@media (hover: hover) {
+  .fi-card:hover { transform: translateY(-2px); border-color: rgba(185, 139, 245, .6); box-shadow: 0 18px 36px -18px rgba(95, 47, 184, .6); }
+  .fi-card:hover .fi-card-go { transform: translateX(3px); }
+}
+@media (min-width: 900px) { #view-home .fi-card { grid-column: 1 / -1; padding: 20px 26px; } }
+
+/* ---------- метки «Фишер 960» в списке партий с друзьями ---------- */
+.du-fi-tag {
+  display: inline-block; padding: 1px 6px; margin-left: 4px; border-radius: 6px; vertical-align: 1px;
+  font-size: 10.5px; font-weight: 800; letter-spacing: .04em; color: var(--violet-3, #dcc6ff);
+  background: var(--tint-2, rgba(142, 85, 230, .22)); border: 1px solid rgba(185, 139, 245, .4);
+}
+.dg-chip.fi { color: var(--violet-3, #dcc6ff); background: rgba(142, 85, 230, .16); border-color: rgba(185, 139, 245, .45); }
+.du-var-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }

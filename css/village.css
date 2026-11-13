@@ -1,0 +1,325 @@
+/* maper.chess — Деревня v6: шахматное королевство. Единый стиль: графит + фиолет + золото, клетки доски, фигуры вместо иконок.
+   Токены берутся из styles.css. Подключать после styles.css, до village-game.css */
+
+#view-village { display: none; padding-bottom: 18px; }
+#view-village.active { display: block; }
+
+.vl-kicker {
+  margin: 0 0 6px; font: 800 11px/1 'Onest', sans-serif;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--violet-2);
+}
+.vl-found { display: flex; flex-direction: column; gap: 12px; }
+.vl-found-title { margin: 0; font-family: 'Unbounded', Georgia, serif; font-size: 28px; font-weight: 600; line-height: 1.15; color: var(--ink); }
+.vl-found-sub { margin: 0; font: 500 13.5px/1.5 'Onest', sans-serif; color: var(--ink-dim); }
+.vl-dim { color: var(--ink-faint) !important; }
+.vl-label { margin: 12px 2px 6px; font: 800 11px/1 'Onest', sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-dim); }
+.vl-input {
+  width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line-2);
+  background: var(--panel); color: var(--ink); font: 600 15px/1.3 'Onest', sans-serif;
+}
+.vl-input:focus { outline: none; border-color: rgba(185, 139, 245, .55); box-shadow: 0 0 0 3px var(--tint); }
+
+.vl-desk { display: flex; flex-direction: column; gap: 12px; }
+.vl-stage-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.vl-side { display: flex; flex-direction: column; gap: 10px; }
+
+/* ---------- сцена ---------- */
+.vl-stage { position: relative; overflow: hidden; isolation: isolate; height: min(56vh, 460px); min-height: 300px; background: #14131f; user-select: none; -webkit-user-select: none; }
+.vl-stage-found { height: 280px; min-height: 240px; }
+.vl-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+.vl-canvas:active { cursor: grabbing; }
+.vl-stage.placing .vl-canvas { cursor: crosshair; }
+.vl-stage.placing { outline: 1px solid rgba(185, 139, 245, .3); outline-offset: -1px; }
+.vl-orbit { position: absolute; right: 10px; bottom: 10px; z-index: 4; display: flex; gap: 6px; }
+.vl-tool {
+  width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line-2); background: rgba(24, 26, 31, .82);
+  color: var(--ink); font: 800 16px/1 'Onest', sans-serif; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.vl-tool:active:not(:disabled) { transform: scale(.94); }
+.vl-tool:disabled { opacity: .35; cursor: default; }
+.vl-cancel {
+  position: absolute; left: 10px; bottom: 10px; z-index: 4; padding: 11px 15px; border-radius: 12px;
+  border: 1px solid var(--line-2); background: rgba(24, 26, 31, .92); color: var(--ink); font: 700 12px/1 'Onest', sans-serif; cursor: pointer;
+}
+.vl-note {
+  position: absolute; left: 10px; top: 10px; right: 10px; z-index: 4; width: fit-content; max-width: calc(100% - 20px);
+  padding: 8px 12px; border-radius: 12px; background: rgba(142, 85, 230, .26); border: 1px solid rgba(185, 139, 245, .45);
+  color: var(--violet-3); font: 700 12px/1.3 'Onest', sans-serif; pointer-events: none; backdrop-filter: blur(6px);
+}
+.vl-note[hidden], .vl-cancel[hidden] { display: none; }
+
+/* ---------- верхняя панель, дань, осмотр ---------- */
+.vl-hero-bar { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 2px 2px 4px; }
+.vl-name { margin: 0; font-family: 'Unbounded', Georgia, serif; font-size: 22px; font-weight: 600; color: var(--ink); }
+.vl-rank { margin: 4px 0 0; font: 600 12.5px/1.35 'Onest', sans-serif; color: var(--ink-dim); }
+.vl-rename {
+  flex: none; padding: 9px 12px; border-radius: 11px; border: 1px solid var(--line-2); background: var(--sel);
+  color: var(--ink); font: 700 12px/1 'Onest', sans-serif; cursor: pointer;
+}
+.vl-rename:hover { border-color: var(--line-3); }
+.vl-tax { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); }
+.vl-tax.ready { border-color: rgba(227, 191, 124, .45); background: linear-gradient(160deg, rgba(227, 191, 124, .12), var(--panel) 70%); }
+.vl-tax b { display: block; font: 800 14px/1.2 'Onest', sans-serif; }
+.vl-tax small { display: block; margin-top: 4px; font: 500 12px/1.3 'Onest', sans-serif; color: var(--ink-dim); }
+.vl-tax small.vl-dim { margin-top: 2px; font-size: 11px; }
+.vl-tax .btn { flex: none; margin: 0; padding: 10px 16px; font-size: 13px; }
+.vl-tax .btn:disabled { opacity: .55; }
+
+.vl-inspect { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); }
+.vl-inspect-top { display: flex; gap: 12px; align-items: center; }
+.vl-inspect b { display: block; font: 700 15px/1.2 'Onest', sans-serif; }
+.vl-inspect small { display: block; margin-top: 4px; font: 500 12px/1.45 'Onest', sans-serif; color: var(--ink-dim); }
+.vl-inspect .vl-desc { margin: 0; }
+.vl-inspect-act { display: flex; flex-wrap: wrap; gap: 8px; }
+.vl-inspect-act .shop-btn { flex: 1; min-width: 140px; }
+.vl-thumb { width: 64px; height: 64px; flex: none; border-radius: 14px; background: radial-gradient(circle at 50% 30%, #3b3466, #1b1830); border: 1px solid var(--line-2); object-fit: contain; }
+.vl-pips { display: inline-flex; gap: 3px; vertical-align: middle; margin-left: 4px; }
+.vl-pips i { width: 7px; height: 7px; border-radius: 50%; background: var(--line-2); }
+.vl-pips i.on { background: var(--gold); box-shadow: 0 0 6px rgba(227, 191, 124, .6); }
+.vl-sz { font: 700 10px/1 'Onest', sans-serif; font-style: normal; color: var(--violet-2); padding: 2px 5px; border: 1px solid var(--line-2); border-radius: 6px; margin-left: 4px; }
+
+/* ---------- списки и карточки ---------- */
+.vl-list, .vl-grid { display: flex; flex-direction: column; gap: 10px; }
+.vl-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.vl-card { display: grid; grid-template-columns: 48px 1fr; gap: 8px 12px; align-items: center; padding: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); }
+.vl-bcard { grid-template-columns: 64px 1fr; }
+.vl-card.on { border-color: rgba(185, 139, 245, .28); background: linear-gradient(160deg, var(--tint), var(--panel) 70%); }
+.vl-card.pick { box-shadow: inset 3px 0 0 var(--violet); }
+.vl-card.locked { opacity: .62; }
+.vl-card .shop-btn { margin: 0; }
+.vl-card-act { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; }
+.vl-card-act .shop-btn { flex: 1; min-width: 120px; }
+.vl-card.shop-like { align-items: stretch; }
+.vl-card.shop-like .shop-btn { grid-column: 1 / -1; }
+.vl-glyph { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: var(--panel-2); border: 1px solid var(--line); font-size: 22px; line-height: 1; font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", serif; }
+.vl-card-t { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.vl-card-t b { font: 700 14px/1.2 'Onest', sans-serif; }
+.vl-card-t small { font: 500 12px/1.4 'Onest', sans-serif; color: var(--ink-dim); }
+.vl-need { font: 600 11px/1.3 'Onest', sans-serif; color: var(--gold); }
+.vl-mini { margin: 0 0 8px; }
+.vl-view-pane { display: flex; flex-direction: column; gap: 4px; }
+.vl-tabs { flex-wrap: wrap; }
+
+.vl-swatch { height: 56px; }
+.vl-swatch.theme-dusk { background: linear-gradient(135deg, #1a1730, #8e55e6); }
+.vl-swatch.theme-dawn { background: linear-gradient(135deg, #f3b18a, #7a4a6a); }
+.vl-swatch.theme-forest { background: linear-gradient(135deg, #1e3c2f, #72d6a3); }
+.vl-swatch.theme-winter { background: linear-gradient(135deg, #1f3a58, #e6f3fb); }
+.vl-swatch.theme-royal { background: linear-gradient(135deg, #3a2a12, #e3bf7c); }
+.vl-swatch.theme-aurora { background: linear-gradient(135deg, #122018, #8e55e6 40%, #72d6a3); }
+.vl-swatch.deco-lanterns { background: radial-gradient(circle at 30% 70%, #e3bf7c, #2b2414); }
+.vl-swatch.deco-banners { background: linear-gradient(90deg, #8e55e6, #5f2fb8); }
+.vl-swatch.deco-fountain { background: linear-gradient(180deg, #91d2f7, #2c5a80); }
+.vl-swatch.deco-statue { background: linear-gradient(135deg, #8a7a5a, #3a3428); }
+.vl-swatch.deco-fair { background: radial-gradient(circle at 70% 30%, #ee8195, #3a1c24); }
+.vl-swatch.deco-flowers { background: radial-gradient(circle at 25% 60%, #ee8195 0 8%, transparent 9%), radial-gradient(circle at 60% 40%, #f0c850 0 8%, transparent 9%), radial-gradient(circle at 78% 70%, #fff 0 7%, transparent 8%), linear-gradient(135deg, #3f7a45, #6fae5a); }
+.vl-swatch.deco-windmill { background: linear-gradient(135deg, #cfe6f7, #8fb4d8); }
+
+/* ---------- жители ---------- */
+.vl-folk { display: flex; flex-direction: column; gap: 10px; }
+.vl-folk-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); }
+.vl-folk-n { font: 700 22px/1.1 'Unbounded', Georgia, serif; }
+.vl-folk-ctl { display: flex; gap: 8px; }
+.vl-folk-ctl .vl-tool { width: 46px; height: 46px; font-size: 22px; background: var(--panel-2); }
+.vl-folk-ctl .vl-plus { background: linear-gradient(180deg, var(--violet), var(--violet-deep)); border-color: transparent; }
+.vl-folk-add { width: 100%; }
+.vl-find { margin: 0; font: 600 12px/1.3 'Onest', sans-serif; }
+.vl-skin { grid-template-columns: 1fr; }
+.vl-skin-cv { width: 100%; height: 72px; border-radius: 12px; background: radial-gradient(circle at 50% 100%, rgba(142, 85, 230, .2), transparent 70%), var(--panel-2); border: 1px solid var(--line); }
+
+/* ---------- визит ---------- */
+.vl-visit {
+  position: fixed; inset: 0; z-index: 9400; display: flex; align-items: center; justify-content: center; padding: 14px;
+  background: rgba(5, 6, 8, .82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  opacity: 0; visibility: hidden; transition: opacity .25s ease, visibility .25s ease;
+}
+.vl-visit.open { opacity: 1; visibility: visible; }
+.vl-visit-card {
+  position: relative; width: min(560px, 100%); max-height: 96vh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+  padding: 18px 16px 16px; background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line-2); border-radius: 22px;
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .8);
+}
+.vl-visit-x { position: absolute; right: 12px; top: 12px; z-index: 5; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--panel); color: var(--ink-dim); cursor: pointer; font-size: 14px; }
+.vl-visit-head { padding-right: 40px; }
+.vl-visit-name { margin: 0; font: 600 24px/1.15 'Unbounded', Georgia, serif; }
+.vl-visit-stage { height: min(46vh, 380px); border-radius: 16px; border: 1px solid var(--line); }
+.vl-visit-info { min-height: 56px; padding: 12px 14px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); }
+.vl-visit-info p { margin: 0; font: 500 13px/1.45 'Onest', sans-serif; }
+.vl-visit-info .vl-desc { margin-top: 8px; display: block; font: 500 12px/1.45 'Onest', sans-serif; color: var(--ink-dim); }
+.vl-visit-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.vl-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); font: 600 11.5px/1 'Onest', sans-serif; color: var(--ink-dim); }
+.vl-chip i { font-style: normal; color: var(--violet-2); font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", serif; }
+.vl-chip b { color: var(--gold); }
+body.vl-visiting { overflow: hidden; }
+
+/* кнопка в профиле игрока */
+.vl-visit-btn { background: linear-gradient(180deg, #f0cf8a, #c99a45) !important; color: #2a1c06 !important; border-color: transparent !important; font-weight: 800; box-shadow: 0 8px 24px -10px rgba(227, 191, 124, .8); }
+.vl-visit-btn:not(:disabled):hover { filter: brightness(1.06); }
+
+.nav-btn.vl-dot span:first-child { position: relative; }
+.nav-btn.vl-dot span:first-child::after { content: ""; position: absolute; top: -2px; right: -4px; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 2px #0c0a11; }
+
+/* карточка на главной */
+.vl-home {
+  width: 100%; display: flex; align-items: stretch; justify-content: space-between; gap: 10px; overflow: hidden;
+  margin: 12px 0 0; padding: 0 0 0 18px; text-align: left; cursor: pointer;
+  background: linear-gradient(120deg, #1d1a33, var(--panel) 70%); border: 1px solid var(--line); border-radius: var(--r-md); color: inherit;
+}
+.vl-home-txt { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 4px; padding: 16px 0; min-width: 0; }
+.vl-home-k { font: 800 11px/1 'Onest', sans-serif; letter-spacing: .07em; text-transform: uppercase; color: var(--violet-2); }
+.vl-home b { font-family: 'Unbounded', Georgia, serif; font-size: 20px; font-weight: 600; }
+.vl-home small { font: 500 12.5px/1.3 'Onest', sans-serif; color: var(--ink-dim); }
+.vl-home-cv { flex: none; width: 150px; height: 98px; display: block; align-self: center; }
+
+@media (max-width: 719px) {
+  .vl-stage { height: min(54vh, 430px); }
+  .vl-tool { width: 44px; height: 44px; }
+  .vl-tax { flex-wrap: wrap; }
+  .vl-tax .btn { width: 100%; }
+}
+@media (min-width: 720px) {
+  .vl-grid { grid-template-columns: 1fr 1fr; }
+  .vl-stage { height: 460px; }
+  .vl-stage-found { height: 340px; }
+}
+@media (min-width: 1024px) {
+  #view-home > #vl-home { display: none !important; }
+  #view-village.active { max-width: 1120px; }
+  .vl-desk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr); gap: 16px; align-items: start; }
+  .vl-stage { height: 560px; }
+  .vl-side { max-height: 560px; overflow: auto; padding-right: 4px; }
+  .vl-found-title { font-size: 34px; }
+}
+@media (prefers-reduced-motion: reduce) { .vl-visit { transition: none; } }
+
+/* =====================================================================
+   v6 — единый шахматный стиль
+   ===================================================================== */
+#view-village { --vc-a: rgba(255,255,255,.035); --vc-gold: rgba(227,191,124,.5); }
+
+/* панель-«клетка»: градиент графита + шахматный уголок */
+.vr-panel {
+  position: relative; display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; overflow: hidden;
+  background: linear-gradient(165deg, var(--panel-2), var(--panel) 62%); border: 1px solid var(--line); border-radius: var(--r-md);
+}
+.vr-panel::after {
+  content: ""; position: absolute; right: 0; top: 0; width: 56px; height: 56px; pointer-events: none; opacity: .5;
+  background: repeating-conic-gradient(var(--vc-a) 0 25%, transparent 0 50%) 0 0 / 14px 14px;
+  -webkit-mask: linear-gradient(225deg, #000, transparent 70%); mask: linear-gradient(225deg, #000, transparent 70%);
+}
+.vr-hero { gap: 12px; border-color: var(--line-2); }
+.vr-hero .vl-hero-bar { padding: 0; }
+.vr-empty { padding: 4px 4px 0; }
+
+/* заголовок экрана */
+#view-village > .view-title { display: flex; align-items: center; gap: 10px; }
+#view-village > .view-title::before { content: ""; display: inline-block; width: 1em; height: 1em; vertical-align: -.12em; margin-right: .3em; background: var(--gold); -webkit-mask: var(--i-king) center / contain no-repeat; mask: var(--i-king) center / contain no-repeat; }
+
+/* лестница рангов: пешка → король */
+.vr-ladder { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+.vr-step { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 2px 6px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink-faint); min-width: 0; }
+.vr-step b { font: 400 21px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", serif; }
+.vr-step small { font: 700 9.5px/1 'Onest', sans-serif; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.vr-step.done { color: var(--violet-2); background: var(--tint); border-color: rgba(185, 139, 245,.22); }
+.vr-step.cur { color: #2a1c06; background: linear-gradient(180deg, #f0cf8a, #c99a45); border-color: transparent; box-shadow: 0 8px 20px -10px rgba(227,191,124,.9); }
+.vr-bar { margin: 2px 0 0; }
+.vr-next { font: 600 11.5px/1.3 'Onest', sans-serif; color: var(--ink-dim); }
+
+/* мастерство */
+.vr-m-head { display: flex; align-items: center; gap: 12px; }
+.vr-m-head b { display: block; font: 800 14px/1.3 'Onest', sans-serif; }
+.vr-m-head .vl-kicker { margin-bottom: 4px; }
+.vr-m-ic { flex: none; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; background: var(--tint-2); border: 1px solid rgba(185, 139, 245,.3); color: var(--violet-3); font: 400 28px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", serif; }
+.vr-m-act { display: flex; flex-wrap: wrap; gap: 8px; }
+.vr-m-act .vl-rename { flex: 1; min-width: 130px; padding: 11px 12px; }
+.vr-mastery .vx-bar { margin: 0; }
+
+/* сцена: рамка в духе доски */
+.vl-stage-card { position: relative; border-color: var(--line-2); box-shadow: 0 24px 50px -28px rgba(0,0,0,.9), 0 0 0 5px rgba(255,255,255,.02); }
+.vl-stage { background: radial-gradient(120% 90% at 50% 0%, #1d1b30 0%, #14131f 70%); }
+.vl-tool-t { font-size: 13px; letter-spacing: -.02em; }
+.vl-orbit { flex-wrap: wrap; justify-content: flex-end; max-width: calc(100% - 20px); }
+.vl-tool { background: rgba(24,26,31,.78); }
+.vl-tool:hover { border-color: var(--line-3); }
+
+/* вкладки: 4 в ряд, фигура + подпись */
+.vl-tabs { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 4px; overflow: visible; }
+.vl-tabs .shop-tab, .vt-tab {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 9px 2px 8px; min-height: 0; border-radius: 13px;
+  font: 700 11.5px/1.1 'Onest', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;
+}
+.vt-ic { font: 400 20px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", serif; color: var(--ink-dim); transition: color .2s, transform .2s; }
+.vt-lb { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.vt-tab.active { background: linear-gradient(180deg, var(--tint-2), var(--tint)); border-color: rgba(185, 139, 245,.45); }
+.vt-tab.active .vt-ic { color: var(--gold); transform: translateY(-1px) scale(1.08); }
+
+/* казна: золотая плашка */
+.vl-tax.vx-gold { border-radius: var(--r-md); }
+.vx-gold-t .vl-kicker { color: var(--gold); margin-bottom: 4px; }
+.vx-gold-n { font-family: 'Unbounded', Georgia, serif !important; font-weight: 600 !important; }
+
+/* роль здания и защита */
+.vp-role { display: inline-flex; align-items: center; gap: 6px; font: 700 11px/1.3 'Onest', sans-serif; font-style: normal; color: var(--violet-2); }
+.vp-role b { font: 400 15px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", serif; color: var(--gold); }
+.vp-guardline { color: var(--ink-faint) !important; }
+
+/* карта позиции */
+.vp-pane { display: flex; flex-direction: column; gap: 10px; }
+.vp-head { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.vp-head .vl-found-sub { font-size: 12.5px; }
+.vp-eval { flex: none; text-align: right; }
+.vp-eval small { display: block; font: 800 10px/1 'Onest', sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-dim); }
+.vp-eval b { display: block; margin-top: 4px; font: 600 28px/1 'Unbounded', Georgia, serif; color: var(--gold); }
+.vp-evbar { margin: -2px 0 0; }
+.vp-map { display: grid; grid-template-columns: repeat(8, 1fr); width: 100%; max-width: 420px; aspect-ratio: 1; align-self: center; border-radius: 14px; overflow: hidden; border: 1px solid var(--line-2); box-shadow: 0 18px 40px -20px rgba(0,0,0,.8), 0 0 0 5px rgba(255,255,255,.02); }
+.vp-sq { position: relative; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; margin: 0; color: inherit; font: inherit; }
+.vp-sq.l { background: var(--sq-light); } .vp-sq.d { background: var(--sq-dark); }
+button.vp-sq { cursor: pointer; }
+.vp-pc { font: 400 clamp(20px, 6.4vw, 34px)/1 "Segoe UI Symbol", "Noto Sans Symbols 2", serif; color: var(--pc-white); text-shadow: 0 0 0 var(--pc-outline-dark), 1px 1px 0 var(--pc-outline-dark), -1px -1px 0 var(--pc-outline-dark), 1px -1px 0 var(--pc-outline-dark), -1px 1px 0 var(--pc-outline-dark), 0 2px 4px rgba(0,0,0,.5); transition: transform .18s; }
+button.vp-sq:hover .vp-pc { transform: translateY(-2px) scale(1.06); }
+.vp-sq.mine { box-shadow: inset 0 0 0 3px var(--sq-active), inset 0 0 18px rgba(184,173,255,.45); }
+.vp-sq.mine .vp-pc { color: #ffe39a; }
+.vp-sq.dot::after { content: ""; width: 26%; height: 26%; border-radius: 50%; background: var(--sq-active); opacity: .75; }
+.vp-sq.hit { box-shadow: inset 0 0 0 3px var(--danger); }
+.vp-sq.ally { box-shadow: inset 0 0 0 3px var(--ok), inset 0 0 16px rgba(114,214,163,.4); }
+.vp-sq em { position: absolute; font: 800 9px/1 'Onest', sans-serif; font-style: normal; opacity: .75; pointer-events: none; }
+.vp-sq.l em { color: var(--sq-dark); } .vp-sq.d em { color: var(--sq-light); }
+.vp-rk { top: 3px; left: 4px; } .vp-fl { bottom: 3px; right: 4px; }
+.vp-selline { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--tint); border: 1px solid rgba(185, 139, 245,.25); font: 600 12.5px/1.4 'Onest', sans-serif; }
+.vp-selline b { font: 400 18px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", serif; color: var(--gold); margin-right: 4px; vertical-align: -2px; }
+.vp-bonus:not(.on) { opacity: .62; }
+
+/* карточки: тонкий золотой акцент у активных */
+.vl-card { transition: border-color .2s, transform .15s; }
+.vl-card.on { border-color: rgba(227,191,124,.28); background: linear-gradient(160deg, rgba(227,191,124,.07), var(--panel) 70%); }
+.vl-card.pick { box-shadow: inset 3px 0 0 var(--gold); }
+.vl-glyph { color: var(--gold); background: radial-gradient(circle at 50% 120%, var(--tint-2), var(--panel-2) 70%); }
+.vl-bcard .vl-thumb { width: 64px; height: 64px; }
+.vl-inspect.vr-panel { gap: 10px; }
+.vl-chip i { color: var(--gold); }
+
+/* кнопка-пилюля (общая) */
+.vl-rename { transition: border-color .2s, background .2s; }
+.vl-rename:hover { background: var(--panel-3); }
+
+@media (max-width: 719px) {
+  .vr-step small { font-size: 8.5px; }
+  .vp-head { flex-direction: column; }
+  .vp-eval { text-align: left; }
+}
+@media (min-width: 1024px) {
+  .vl-stage { height: 600px; }
+  .vl-side { max-height: 600px; }
+}
+
+.vp-sq.part { background-image: linear-gradient(rgba(184,173,255,.16), rgba(184,173,255,.16)); }
+.vp-sq.part.mine { box-shadow: inset 0 0 0 3px var(--sq-active); }
+
+/* исправления вёрстки */
+.vl-tabs { width: 100%; max-width: none; }
+.vl-side > *, .vr-panel > * { flex-shrink: 0; }
+@media (min-width: 720px) {
+  .vl-tabs { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .vl-tabs .shop-tab, .vt-tab { padding: 10px 2px 9px; }
+}

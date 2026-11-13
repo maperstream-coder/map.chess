@@ -1,0 +1,82 @@
+/* maper.chess — плавные ходы и заметная подсветка последнего хода.
+   Подключается ПОСЛЕ boost.css (см. index.html). Логика — в js/board.js. */
+
+.board { position: relative; }
+
+/* ---------- летящая фигура ---------- */
+.mf-piece {
+  position: absolute; z-index: 6; display: flex; align-items: center; justify-content: center;
+  pointer-events: none; will-change: transform; line-height: 1;
+  font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", "Apple Symbols", "DejaVu Sans", sans-serif;
+  font-variant-emoji: text;
+}
+.mf-piece svg { width: 88%; height: 88%; pointer-events: none; filter: drop-shadow(0 5px 5px rgba(0, 0, 0, .42)); }
+html[data-rl-pc] .board .mf-piece svg { filter: drop-shadow(0 0 3px var(--pc-glow)) drop-shadow(0 5px 5px rgba(0, 0, 0, .45)); }
+.mf-piece.mf-ghost { z-index: 4; }
+.mf-piece.mf-rook { z-index: 5; }
+
+/* настоящую фигуру на клетке-цели прячем, пока вместо неё летит копия */
+.sq.mf-hide > svg { visibility: hidden; }
+.sq.mf-hide { color: transparent !important; text-shadow: none !important; }
+
+/* «пружинка» при посадке — вместо прежнего боста приземления (его мы включаем сами после полёта) */
+.sq.mf-settle svg { animation: mfSettle .3s cubic-bezier(.2, 1, .3, 1) both; }
+@keyframes mfSettle { 0% { transform: scale(1.12); } 55% { transform: scale(.95); } 100% { transform: none; } }
+
+/* круг на клетке, куда встала фигура */
+.mf-ping {
+  position: absolute; z-index: 3; pointer-events: none; border-radius: 50%;
+  --mf-c: 184, 173, 255;
+  border: 3px solid rgba(var(--mf-c), .95);
+  animation: mfPing .6s ease-out both;
+}
+.mf-ping.mf-opp { --mf-c: 255, 148, 104; }
+@keyframes mfPing { from { transform: scale(.45); opacity: .95; } to { transform: scale(1.35); opacity: 0; } }
+
+/* ---------- подсветка последнего хода: мой — фиолетовая, соперника — оранжевая ---------- */
+/* оттенок идёт через --last-hl (его уже читает .sq-last), поэтому выбор клетки и шах по-прежнему перекрывают подсветку */
+.sq.mf-me.mf-from  { --last-hl: rgba(160, 112, 240, .26); }
+.sq.mf-me.mf-to    { --last-hl: rgba(160, 112, 240, .46); outline: 2px solid rgba(184, 173, 255, .85); outline-offset: -2px; }
+.sq.mf-opp.mf-from { --last-hl: rgba(255, 148, 104, .26); }
+.sq.mf-opp.mf-to   { --last-hl: rgba(255, 148, 104, .46); outline: 2px solid rgba(255, 170, 130, .9); outline-offset: -2px; }
+
+/* вспышка по краю доски в момент хода */
+.board.mf-flash-me  { animation: mfFlashMe .9s ease-out; }
+.board.mf-flash-opp { animation: mfFlashOpp .9s ease-out; }
+@keyframes mfFlashMe {
+  0%   { box-shadow: 0 0 0 0 rgba(160, 112, 240, .0), 0 18px 40px -16px rgba(0, 0, 0, .7); }
+  25%  { box-shadow: 0 0 0 4px rgba(160, 112, 240, .55), 0 0 26px 2px rgba(160, 112, 240, .45), 0 18px 40px -16px rgba(0, 0, 0, .7); }
+  100% { box-shadow: 0 0 0 0 rgba(160, 112, 240, 0), 0 18px 40px -16px rgba(0, 0, 0, .7); }
+}
+@keyframes mfFlashOpp {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 148, 104, 0), 0 18px 40px -16px rgba(0, 0, 0, .7); }
+  25%  { box-shadow: 0 0 0 4px rgba(255, 148, 104, .6), 0 0 26px 2px rgba(255, 148, 104, .5), 0 18px 40px -16px rgba(0, 0, 0, .7); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 148, 104, 0), 0 18px 40px -16px rgba(0, 0, 0, .7); }
+}
+
+/* плашка «Вы · e4» / «Соперник · Nf3» над верхней линией доски */
+.mf-chip {
+  position: absolute; z-index: 8; left: 50%; top: 6px; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 6px; max-width: 90%;
+  padding: 4px 11px; border-radius: 999px; pointer-events: none; white-space: nowrap;
+  font: 700 12px/1.2 var(--font-body, "Onest", system-ui, sans-serif); color: #fff;
+  background: rgba(24, 22, 40, .86); border: 1px solid rgba(var(--mf-c), .9);
+  box-shadow: 0 6px 18px -6px rgba(0, 0, 0, .7), 0 0 14px -2px rgba(var(--mf-c), .55);
+  --mf-c: 143, 132, 255;
+  animation: mfChip 1.7s ease both;
+}
+.mf-chip.mf-opp { --mf-c: 255, 148, 104; }
+.mf-chip b { font-weight: 800; color: rgb(var(--mf-c)); }
+.mf-chip span { font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+@keyframes mfChip {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(.9); }
+  12%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  75%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mf-ping, .board.mf-flash-me, .board.mf-flash-opp, .sq.mf-settle svg { animation: none; }
+  .mf-chip { animation: mfChipRM 1.7s linear both; }
+  @keyframes mfChipRM { 0%, 85% { opacity: 1; } 100% { opacity: 0; } }
+}

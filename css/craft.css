@@ -1,0 +1,68 @@
+/* maper.chess — «ручная» тема. Подключается последней и переопределяет базовые токены.
+   Идея: шахматный клуб, а не панель нейросети. Тёплый графит и слоновая кость вместо холодного чёрного с фиолетовым,
+   одна латунная краска-акцент, плоские кнопки с «нажимом» вместо градиентов и свечения, строгие радиусы, никакого стекла. */
+:root {
+  --bg: #15120e; --bg-2: #1a1611; --panel: #1f1b15; --panel-2: #29231b; --panel-3: #362e23;
+  --line: rgba(240, 226, 196, .09); --line-2: rgba(240, 226, 196, .16); --line-3: rgba(240, 226, 196, .28);
+  --sel: #302a20;
+  --ink: #f0e7d3; --ink-dim: #aba08b; --ink-faint: #7a705f;
+  --violet: #c89b3c; --violet-2: #e2b85a; --violet-3: #f1d79a; --violet-deep: #8a6a22;   /* имена от старой темы; теперь это латунь */
+  --tint: rgba(200, 155, 60, .12); --tint-2: rgba(200, 155, 60, .2);
+  --gold: #e2b85a; --danger: #d9715f; --ok: #8db783; --flame: #e59a56; --ice: #8fb9d3;
+  --radius: 12px; --r-md: 10px; --r-sm: 7px;
+  --sq-active: #e2b85a;
+  --font-ui: 'Golos Text', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Alegreya', Georgia, 'Times New Roman', serif;
+  --press: 0 2px 0 rgba(0, 0, 0, .55);
+  --emboss: inset 0 1px 0 rgba(255, 244, 214, .07);
+  --brass-edge: #6f521a;
+}
+body { background: #0d0b08; }
+.phone-frame { border-radius: 18px; border-color: var(--line-2); box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .8); background: var(--bg); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; }
+.btn { border-radius: 8px; font-weight: 700; }
+.btn-primary, .shop-btn { background: var(--violet); color: #1d1507; border: 1px solid var(--brass-edge); box-shadow: var(--emboss), var(--press); text-shadow: none; }
+.btn-primary:hover:not(:disabled), .shop-btn:hover:not(:disabled) { background: var(--violet-2); filter: none; }
+.btn-primary:active:not(:disabled), .shop-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: var(--emboss); }
+.btn-primary:disabled, .shop-btn:disabled { background: var(--panel-3); color: var(--ink-faint); border-color: var(--line); box-shadow: none; }
+.btn-ghost, .vl-rename { background: transparent; color: var(--ink); border: 1px solid var(--line-3); border-radius: 8px; box-shadow: none; }
+.btn-ghost:hover:not(:disabled), .vl-rename:hover { background: var(--panel-2); }
+.vl-card, .vl-inspect, .vl-goal, .vl-combos, .vl-rankcard, .vl-tre, .vl-quests { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--emboss); }
+.vl-card.on, .vl-goal, .vl-rankcard { background: var(--panel); border-color: var(--line-2); }
+.vl-thumb { background: #272016; border-radius: 8px; border-color: var(--line-2); }
+.topbar { background: var(--bg-2); border-bottom: 1px solid var(--line); }
+.bottom-nav { background: var(--bg-2); border-top: 1px solid var(--line-2); backdrop-filter: none; }
+.vl-bar { background: var(--panel-2); border-radius: 3px; border: 1px solid var(--line-2); }
+.vl-bar i { background: var(--violet); border-radius: 0; box-shadow: none; }
+.vl-kicker { color: var(--violet-2); letter-spacing: .12em; }
+.vl-input, input[type=text] { border-radius: 8px; background: var(--bg-2); border: 1px solid var(--line-2); }
+
+/* ---------- убираем стекло и градиенты ---------- */
+.topbar, .modal, .du-sheet, .pp-overlay, .ms-backdrop, .deco-hint, .bottom-nav { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+.modal, .du-sheet, .pp-overlay, .ms-backdrop { background: rgba(8, 6, 3, .78); }
+.modal-card, .du-sheet-card, .dg-sheet-card, .pp-card, .ms-panel { background: var(--panel); border: 1px solid var(--line-2); border-radius: 14px; box-shadow: 0 18px 50px rgba(0, 0, 0, .6); }
+.xp-fill { background: var(--violet); }
+.icon-btn.icon-btn-ghost, .avatar-btn { background: var(--panel-3); border: 1px solid var(--line-3); box-shadow: var(--press); color: var(--violet-2); }
+.tg-card, .vl-home, .board-deco, .ach-banner, .ach-banner.show { background: var(--panel); border: 1px solid var(--line-2); box-shadow: var(--emboss); }
+.tg-ico { background: var(--panel-3); border: 1px solid var(--line-2); color: var(--violet-2); box-shadow: none; }
+.gp-ava, .dg-chat-ava { background: var(--panel-3); border: 1px solid var(--line-2); }
+.du-chat-send { background: var(--violet); color: #1d1507; border: 1px solid var(--brass-edge); }
+.rl-banner, .rl-banner-ready { background: var(--panel); border: 1px solid var(--violet-deep); box-shadow: var(--emboss); }
+.rl-b-go { background: var(--violet); color: #1d1507; border: 1px solid var(--brass-edge); box-shadow: var(--press); }
+
+/* ---------- главная: без «трёх карточек с цифрами в кружках» ---------- */
+.hp-how { display: block; list-style: none; margin: 18px 0 0; padding: 0; border-top: 1px solid var(--line-2); }
+.hp-how li { display: grid; grid-template-columns: 34px 1fr; grid-template-rows: auto auto; column-gap: 8px; padding: 11px 2px; background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; }
+.hp-how li span { grid-row: 1 / 3; width: auto; height: auto; background: none; border: 0; color: var(--violet); font: 700 26px/1 var(--font-display); align-self: center; }
+.hp-how li b { font: 700 15px/1.2 var(--font-display); font-size: 17px; }
+.hp-how li small { color: var(--ink-dim); }
+.hero-title { font-family: var(--font-display); font-weight: 800; letter-spacing: -.01em; }
+.hp-big { border-radius: 10px; }
+
+/* ---------- без «дышащих» кнопок, бликов и пульса ---------- */
+.bx-play, .bx-play::after, #view-home.home-new .hp-big, #view-home.home-new .hp-big::after, #modal-next:not([hidden]),
+.rl-banner::after, .rl-banner-ready, .tg-ico::after, .vl-hud-tax { animation: none !important; }
+#view-home.home-new .hp-big::after, .rl-banner::after, .bx-play::after, .tg-ico::after { display: none; }
+#view-home.home-new .hp-big { min-height: 60px; border-radius: 10px; font-size: 18px; }
+.bx-play { background: var(--violet); color: #1d1507; border: 1px solid var(--brass-edge); box-shadow: var(--emboss), var(--press); border-radius: 10px; }
+.tg-kicker { color: var(--ice); }

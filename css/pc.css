@@ -1,0 +1,77 @@
+/* maper.chess — pc.css: аккуратная раскладка ПК-версии (≥1024px). Подключается ПОСЛЕДНИМ, мобильную версию не трогает.
+   Главная — сетка с чёткими зонами, поэтому блоки больше не «разбросаны»:
+        ┌──────────────── hero (только новичку) ────────────────┐
+        │  профиль + испытание дня        │   доска-декор       │
+        │  огонёк (серия)                 │   статистика        │
+        ├───────────────────── установка / Telegram ────────────┤ */
+@media (min-width: 1024px) {
+  #view-home.active {
+    display: grid; gap: 20px; align-items: stretch; align-content: start;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
+    grid-template-areas: "top deco" "streak stats" "tg tg";           /* вернувшийся игрок */
+  }
+  #view-home.active.home-new { grid-template-areas: "hero hero" "top deco" "tg tg"; }   /* новичок */
+  #view-home.active.home-ret:has(#home-install > *) { grid-template-areas: "top deco" "streak stats" "inst inst" "tg tg"; }
+  #view-home > * { margin: 0 !important; min-width: 0; }
+  #view-home > .hero { grid-area: hero; }
+  #view-home > #home-top { grid-area: top; display: flex; flex-direction: column; gap: 14px; }
+  #view-home > #home-more, #view-home > #continue-card { display: none !important; }
+  #view-home > #home-deco, #view-home > .board-deco { grid-area: deco; min-height: 0; height: auto; }
+  #view-home > #streak-card { grid-area: streak; }
+  #view-home > .stats-row { grid-area: stats; }
+  #view-home > #home-install { grid-area: inst; }
+  #view-home > #home-install:empty { display: none; }
+  #view-home > .tg-card { grid-area: tg; }
+
+  /* новичок: баннер компактнее, под ним — «Реши первую задачу» и доска-декор */
+  #view-home .hero { padding: 36px 44px; }
+  #view-home .hero-title { font-size: 44px; max-width: 18ch; }
+  #view-home .hero::after { font-size: 170px; right: 44px; }
+  #view-home.home-new .hp-first { margin: 0; }
+  #view-home.home-new .hp-how { margin: 0; }
+  #view-home.home-new #home-top { justify-content: center; }
+  #view-home.home-new .hp-how li { padding: 16px 14px; }
+  #view-home.home-new .hp-how b { font-size: 14.5px; }
+  #view-home.home-new .hp-how small { font-size: 12.5px; }
+
+  /* вернувшийся: профиль и испытание дня делят высоту доски-декора поровну */
+  #view-home .hp-me { margin: 0; padding: 22px 24px; }
+  #view-home .hp-me-t b { font-size: 26px; }
+  #view-home .hp-ava { width: 56px; height: 56px; }
+  #view-home .hp-daily { flex: 1; padding: 20px 22px; }
+  #view-home .board-deco { border-radius: 20px; }
+  #view-home .deco-piece { font-size: 132px; }
+
+
+  /* огонёк + статистика одной высоты; статистика — три ровные строки */
+  #view-home .streak-card { align-self: stretch; }
+  #view-home .stats-row { display: grid; grid-template-columns: 1fr; grid-auto-rows: 1fr; gap: 14px; align-self: stretch; }
+  #view-home .stat-card {
+    flex-direction: row-reverse; justify-content: space-between; align-items: center; text-align: left; gap: 16px;
+    padding: 0 26px; border-radius: 18px;
+  }
+  #view-home .stat-value { font-size: 34px; line-height: 1; }
+  #view-home .stat-label { font-size: 14px; font-weight: 700; color: var(--ink-dim); letter-spacing: .01em; }
+
+  #view-home .tg-card { margin: 0; }
+}
+
+/* широкие мониторы: чуть шире контент */
+@media (min-width: 1600px) {
+  .views { padding-left: max(40px, calc((100% - 1280px) / 2)); padding-right: max(40px, calc((100% - 1280px) / 2)); }
+}
+
+/* шапка выровнена по ширине контента */
+@media (min-width: 1024px) {
+  .topbar { padding-left: max(40px, calc((100% - 1160px) / 2)); padding-right: max(40px, calc((100% - 1160px) / 2)); }
+}
+@media (min-width: 1600px) {
+  .topbar { padding-left: max(40px, calc((100% - 1280px) / 2)); padding-right: max(40px, calc((100% - 1280px) / 2)); }
+}
+
+/* вкладки-«сегменты» не растягиваются на всю ширину экрана */
+@media (min-width: 1024px) {
+  .mode-tabs { max-width: 480px; }
+  .tier-tabs { max-width: 640px; }
+  .shop-tabs { max-width: 560px; }
+}

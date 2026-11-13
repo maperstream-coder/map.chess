@@ -1,0 +1,166 @@
+/* maper.chess — extras.css (redesign "Graphite + Violet")
+   Функции поверх базы: монета, выбор цвета, профиль, никнейм, рейтинг, друзья, магазин, превращение пешки.
+   Подключать ПОСЛЕ styles.css. Здесь больше нет слоёв-перекрытий и !important-хаков. */
+
+/* ---------- монета ---------- */
+.mcoin {
+  position: relative; display: inline-block; width: 15px; height: 15px; margin-right: 6px; vertical-align: -3px;
+  border-radius: 50%; overflow: hidden;
+  background: radial-gradient(circle at 32% 28%, #fff3c4 0 14%, #efca6e 40%, #c28d24 74%, #8a5f14 100%);
+  box-shadow: 0 0 0 1.5px #8a5f14, inset 0 0 0 2px rgba(255, 240, 180, .5);
+}
+.mcoin::before {
+  content: "M"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font: 800 8.5px/1 var(--font-display); color: #7a4d08;
+}
+.mcoin::after {
+  content: ""; position: absolute; top: -40%; left: -80%; width: 50%; height: 180%; transform: rotate(20deg);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .7), transparent);
+  animation: coin-shine 4.5s ease-in-out infinite;
+}
+@keyframes coin-shine { 0%, 72% { left: -80%; } 100% { left: 160%; } }
+
+/* ---------- выбор цвета перед партией ---------- */
+.color-choice { display: flex; gap: 10px; margin-top: 16px; }
+.color-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 6px;
+  font-size: 13px; font-weight: 700; color: var(--ink);
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--r-md);
+  transition: transform .12s ease, border-color .15s ease, background .15s ease;
+}
+.color-btn:hover { border-color: var(--line-3); background: var(--panel-3); }
+.color-btn:active { transform: scale(.95); }
+.cp { font-size: 36px; font-weight: 400; line-height: 1; }
+.cp-w { color: #f8f4e6; text-shadow: 0 0 2px #000, 0 0 2px #000; }
+.cp-b { color: #14131e; text-shadow: 0 0 2px #fff, 0 0 2px #fff; }
+.cp-r { background: linear-gradient(90deg, #f8f4e6 50%, #14131e 50%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 1px #aaa); }
+
+/* ---------- карточка «с другом» ---------- */
+.friend-card { padding: 26px 20px; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.friend-icon { margin-bottom: 10px; font-size: 42px; color: var(--ink-dim); }
+.friend-card h3 { margin-bottom: 8px; font-size: 22px; }
+.friend-card p { margin: 0 0 16px; font-size: 13px; line-height: 1.6; color: var(--ink-dim); }
+.friend-opt { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 18px; font-size: 12.5px; font-weight: 600; color: var(--ink-dim); }
+.friend-opt input { accent-color: var(--violet); width: 16px; height: 16px; }
+.friend-card .btn { width: 100%; }
+
+/* ---------- поля ввода ---------- */
+.nick-input {
+  width: 100%; padding: 12px 14px; border-radius: var(--r-sm);
+  font-size: 14px; font-weight: 600; color: var(--ink);
+  background: var(--panel-2); border: 1px solid var(--line-2);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.nick-input::placeholder { color: var(--ink-faint); font-weight: 500; }
+.nick-input:focus { outline: none; border-color: var(--violet-2); box-shadow: 0 0 0 3px rgba(142, 85, 230, .22); }
+
+/* ---------- профиль (в настройках) ---------- */
+.prof-row { display: flex; gap: 14px; align-items: center; }
+.avatar-btn {
+  width: 66px; height: 66px; flex: none; padding: 0; overflow: hidden; border-radius: 50%;
+  font: 600 26px var(--font-display); color: var(--ink);
+  background: linear-gradient(135deg, var(--panel-3), var(--panel-2)); border: 2px solid rgba(255, 255, 255, .22);
+  transition: transform .12s ease, border-color .15s ease;
+}
+.avatar-btn:hover { border-color: var(--violet-2); }
+.avatar-btn img, .top-ava { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.avatar-btn span { display: block; }
+.prof-fields { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.avatar-clear { padding: 0; border: none; background: none; font-size: 12px; font-weight: 600; color: var(--ink-dim); text-decoration: underline; }
+.avatar-clear:hover { color: var(--danger); }
+.email-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--ink-dim); }
+.email-row span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.email-row .btn { flex: none; padding: 10px 14px; font-size: 12.5px; }
+#btn-settings { overflow: hidden; padding: 0; }
+
+/* ---------- экран выбора ника ---------- */
+.nick-gate {
+  position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 28px;
+  background: radial-gradient(80% 50% at 50% 30%, #1a1c22 0%, var(--bg) 70%);
+}
+.nick-gate[hidden] { display: none; }
+.nick-card { width: 100%; display: flex; flex-direction: column; gap: 14px; text-align: center; }
+.nick-icon { font-size: 56px; line-height: 1; color: var(--violet-2); text-shadow: 0 10px 34px rgba(142, 85, 230, .55); }
+.nick-card h3 { font-size: 26px; }
+.nick-card p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink-dim); }
+.nick-card .nick-input { padding: 14px; font-size: 16px; text-align: center; }
+.nick-err { color: var(--danger) !important; font-weight: 600; }
+
+/* ---------- рейтинг ---------- */
+.lb-sub { margin: -8px 0 14px; font-size: 13px; color: var(--ink-dim); }
+.lb-me {
+  margin-bottom: 14px; padding: 12px 14px; font-size: 13px; font-weight: 600; color: var(--violet-3);
+  background: var(--tint); border: 1px solid rgba(255, 255, 255, .22); border-radius: var(--r-md);
+}
+.lb-note { padding: 24px 0; text-align: center; font-size: 13px; color: var(--ink-dim); }
+.lb-row, .fr-row {
+  display: grid; align-items: center; gap: 12px; margin-bottom: 8px; padding: 10px 12px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md);
+  cursor: pointer; transition: border-color .15s ease, transform .12s ease, background .15s ease;
+}
+.lb-row { grid-template-columns: 30px 40px 1fr auto; }
+.fr-row { grid-template-columns: 40px 1fr auto; }
+.lb-row:hover, .fr-row:hover { border-color: rgba(255, 255, 255, .22); background: var(--panel-2); }
+.lb-row:active, .fr-row:active { transform: scale(.985); }
+.lb-mine { border-color: rgba(255, 255, 255, .22) !important; background: var(--tint) !important; }
+.lb-rank {
+  min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 9px; font-size: 12.5px; font-weight: 800; color: var(--ink-dim); background: var(--panel-2);
+}
+.lb-top1 { color: #3a2704; background: linear-gradient(135deg, #f1d38f, #d3a043); }
+.lb-top2 { color: #232838; background: linear-gradient(135deg, #e6eaf4, #a2abc0); }
+.lb-top3 { color: #3a1f09; background: linear-gradient(135deg, #eab38b, #b0703a); }
+.lb-ava, .fr-ava {
+  width: 40px; height: 40px; flex: none; overflow: hidden; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font: 600 16px var(--font-display); color: var(--ink); user-select: none;
+  background: linear-gradient(135deg, var(--panel-3), var(--panel-2)); border: 1px solid var(--line-2);
+}
+.lb-ava img { width: 100%; height: 100%; object-fit: cover; }
+.lb-nick { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 700; }
+.lb-nick i { font-style: normal; font-weight: 600; color: var(--violet-2); }
+.lb-score { display: flex; flex-direction: column; align-items: flex-end; }
+.lb-score b { font: 700 17px var(--font-display); color: var(--gold); }
+.lb-score small { font-size: 10.5px; font-weight: 600; color: var(--ink-dim); }
+
+/* ---------- друзья ---------- */
+.fr-add { display: flex; gap: 8px; margin: 12px 0 4px; }
+.fr-add .nick-input { flex: 1; min-width: 0; }
+.fr-add .btn { flex: none; padding: 12px 18px; }
+.fr-sec { margin: 20px 0 8px; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+.fr-info { min-width: 0; }
+.fr-info b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 700; color: var(--ink); }
+.fr-info small { font-size: 11.5px; color: var(--ink-dim); }
+.fr-x { padding: 8px; border: none; background: none; font-size: 14px; color: var(--ink-faint); }
+.fr-x:hover { color: var(--danger); }
+.fr-actions { display: flex; gap: 6px; }
+.fr-actions .btn { padding: 9px 12px; font-size: 12px; }
+.fr-my { width: 100%; margin-bottom: 10px; }
+
+/* ---------- поединки (список) ---------- */
+.du-game-row { width: 100%; text-align: left; color: var(--ink); font: inherit; }
+.du-myturn { color: var(--ok); font-weight: 800; }
+.du-new { width: 100%; margin-bottom: 8px; }
+.du-picker { margin-top: 4px; }
+
+/* ---------- магазин: превью наборов фигур ---------- */
+.shop-card .pc-swatch { gap: 16px; }
+.shop-card .pc-swatch svg { width: 40px; height: 40px; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .4)); }
+.shop-card .pc-swatch .sq-white-piece,
+.shop-card .pc-swatch .sq-black-piece { position: static; font-size: 30px; line-height: 1; }
+.pset-row { display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; height: 100%; padding: 6px; }
+.pset-row svg { flex: 0 0 auto; width: 22%; height: 88%; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .35)); }
+
+/* ---------- выбор фигуры при превращении пешки ---------- */
+.promo-overlay {
+  position: fixed; inset: 0; z-index: 99; display: flex; align-items: center; justify-content: center;
+  background: rgba(5, 6, 8, .72); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+}
+.promo-box { display: flex; gap: 10px; padding: 16px; background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 20px; box-shadow: 0 24px 60px -10px rgba(0, 0, 0, .7); }
+.promo-btn {
+  width: 60px; height: 60px; padding: 6px; border-radius: 14px; background: var(--panel-3); border: 1px solid var(--line-2);
+  transition: transform .12s ease, border-color .15s ease, background .15s ease;
+}
+.promo-btn:hover { border-color: var(--violet-2); background: var(--tint-2); }
+.promo-btn:active { transform: scale(.92); }
+.promo-btn svg { display: block; width: 100%; height: 100%; }

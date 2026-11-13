@@ -1,0 +1,121 @@
+/* maper.chess — Деревня: интерфейс v5 (иконки SVG, плашка на сцене, цели, комбинации, мобильная вёрстка) */
+
+.vl-ic { width: 20px; height: 20px; flex: none; display: block; }
+.vl-ic.vl-coin { width: 22px; height: 22px; }
+
+/* ---------- вкладки: иконка + подпись, ничего не обрезается ---------- */
+.vl-tabs { gap: 6px; margin-bottom: 12px; }
+.vl-tabs .shop-tab {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-height: 54px; padding: 8px 2px 7px; font-size: 11px; font-weight: 700; line-height: 1.1; letter-spacing: 0;
+  overflow: visible; text-overflow: clip;
+}
+.vl-tabs .shop-tab .vl-ic { width: 20px; height: 20px; opacity: .85; }
+.vl-tabs .shop-tab.active .vl-ic { opacity: 1; color: var(--violet-3); }
+.vl-tabs .shop-tab span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- сцена: компактная плашка и аккуратные кнопки ---------- */
+.vl-hud { position: absolute; left: 10px; right: 10px; top: 10px; z-index: 4; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; pointer-events: none; }
+.vl-hud:empty { display: none; }
+.vl-hud-t {
+  min-width: 0; max-width: calc(100% - 96px); padding: 8px 12px 9px; border-radius: 14px;
+  background: rgba(20, 21, 27, .72); border: 1px solid var(--line-2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.vl-hud-t b { display: block; font: 600 16px/1.15 'Alegreya', Georgia, serif; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vl-hud-t small { display: flex; align-items: center; gap: 4px; margin-top: 3px; font: 700 11px/1 'Golos Text', sans-serif; color: var(--ink-dim); }
+.vl-hud-t small .vl-ic { width: 12px; height: 12px; }
+.vl-hud-tax {
+  pointer-events: auto; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px 7px 8px; border-radius: 999px; cursor: pointer;
+  border: 1px solid rgba(227, 191, 124, .6); background: linear-gradient(180deg, rgba(60, 46, 18, .92), rgba(38, 30, 14, .92));
+  color: #f3cb63; font: 800 14px/1 'Golos Text', sans-serif; box-shadow: 0 6px 18px -6px rgba(227, 191, 124, .6); animation: vlPulse 1.8s ease-in-out infinite;
+}
+.vl-hud-tax:active { transform: scale(.95); }
+@keyframes vlPulse { 50% { box-shadow: 0 6px 24px -2px rgba(227, 191, 124, .95); } }
+
+.vl-tool { width: 40px; height: 40px; padding: 0; border-radius: 12px; }
+.vl-tool .vl-ic { width: 18px; height: 18px; }
+.vl-orbit { gap: 6px; }
+.vl-folk-ctl .vl-tool { width: 46px; height: 46px; }
+
+/* ---------- прогресс ---------- */
+.vl-bar { height: 8px; border-radius: 99px; background: var(--panel-2); border: 1px solid var(--line); overflow: hidden; }
+.vl-bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--violet), #e3bf7c); transition: width .5s ease; }
+
+/* ---------- «Что дальше» ---------- */
+.vl-goal, .vl-rankcard, .vl-combos {
+  display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: var(--r-md);
+  background: var(--panel); border: 1px solid var(--line);
+}
+.vl-goal { border-color: rgba(226,184,90, .35); background: linear-gradient(160deg, var(--tint), var(--panel) 75%); }
+.vl-goal .vl-kicker, .vl-combos .vl-kicker, .vl-rankcard .vl-kicker { margin: 0; }
+.vl-goal-row { display: flex; align-items: center; gap: 12px; }
+.vl-goal-row .vl-card-t b { font-size: 15px; }
+.vl-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vl-goal-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.vl-goal-foot small { flex: 1 1 130px; font: 600 12px/1.35 'Golos Text', sans-serif; color: var(--ink-dim); }
+.vl-goal-foot .shop-btn { flex: 1 1 160px; margin: 0; }
+
+/* ---------- комбинации ---------- */
+.vl-combos-h, .vl-rank-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.vl-combos-h small { font: 800 12px/1 'Golos Text', sans-serif; color: var(--gold); }
+.vl-combos ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.vl-combos li {
+  display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: center; padding: 9px 10px; border-radius: 12px;
+  background: var(--panel-2); border: 1px solid var(--line); opacity: .78;
+}
+.vl-combos li.on { opacity: 1; border-color: rgba(227, 191, 124, .5); background: linear-gradient(160deg, rgba(227, 191, 124, .14), var(--panel-2) 70%); }
+.vl-combos li.tap { cursor: pointer; opacity: 1; }
+.vl-combos li.tap:active { transform: scale(.985); }
+.vl-combos li > i { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 20px; line-height: 1; background: var(--panel); border: 1px solid var(--line); color: var(--violet-2); font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", serif; }
+.vl-combos li.on > i { color: var(--gold); border-color: rgba(227, 191, 124, .5); }
+.vl-combos li b { display: block; font: 700 13px/1.2 'Golos Text', sans-serif; }
+.vl-combos li small { display: block; margin-top: 2px; font: 500 11.5px/1.35 'Golos Text', sans-serif; color: var(--ink-dim); }
+.vl-combos li em { font: 800 12px/1.2 'Golos Text', sans-serif; font-style: normal; color: var(--ink-faint); text-align: right; max-width: 92px; }
+.vl-combos li small.need { color: var(--gold); font-weight: 700; }
+.vl-combos li.on em { color: var(--gold); font-size: 14px; }
+.vl-combos li.tap em { color: var(--violet-3); }
+
+.vl-rankcard b { display: block; font: 600 18px/1.15 'Alegreya', Georgia, serif; }
+.vl-rankcard small { font: 600 12px/1.4 'Golos Text', sans-serif; color: var(--ink-dim); }
+
+/* ---------- чёткие превью ---------- */
+.vl-thumb { width: 64px; height: 64px; image-rendering: auto; }
+
+/* ---------- телефон ---------- */
+@media (max-width: 719px) {
+  #view-village .view-title { margin-bottom: 10px; }
+  .vl-stage { height: clamp(280px, 46vh, 400px); min-height: 0; }
+  .vl-stage-found { height: 250px; }
+  .vl-tool { width: 38px; height: 38px; border-radius: 11px; }
+  .vl-orbit { right: 8px; bottom: 8px; gap: 5px; }
+  .vl-hud { left: 8px; right: 8px; top: 8px; }
+  .vl-hud-t b { font-size: 15px; }
+  .vl-tabs .shop-tab { font-size: 10.5px; min-height: 52px; }
+  .vl-desk { gap: 10px; }
+  .vl-tax { flex-wrap: nowrap; padding: 12px 14px; }
+  .vl-tax .btn { width: auto; padding: 10px 14px; }
+  .vl-tax small.vl-dim { display: none; }
+  .vl-bcard { grid-template-columns: 56px 1fr; }
+  .vl-bcard .vl-thumb { width: 56px; height: 56px; border-radius: 12px; }
+  .vl-inspect .vl-thumb, .vl-goal .vl-thumb { width: 56px; height: 56px; border-radius: 12px; }
+  .vl-card-act .shop-btn, .vl-inspect-act .shop-btn { min-width: 0; }
+  .vl-swatch { height: 44px; }
+  .vl-home-cv { width: 132px; height: 86px; }
+  .vl-visit { padding: 8px; }
+  .vl-visit-card { padding: 14px 12px 12px; max-height: 98vh; border-radius: 18px; }
+  .vl-visit-name { font-size: 20px; }
+  .vl-visit-stage { height: min(40vh, 330px); }
+  .vl-chip { padding: 5px 8px; font-size: 11px; }
+}
+@media (max-width: 360px) {
+  .vl-tabs { gap: 4px; }
+  .vl-tabs .shop-tab { font-size: 10px; }
+  .vl-combos li { grid-template-columns: 32px 1fr; }
+  .vl-combos li em { grid-column: 2; text-align: left; max-width: none; }
+  .vl-tax { flex-wrap: wrap; }
+  .vl-tax .btn { width: 100%; }
+}
+@media (min-width: 1024px) {
+  .vl-tabs .shop-tab { flex-direction: row; gap: 7px; min-height: 44px; font-size: 12.5px; }
+}
+@media (prefers-reduced-motion: reduce) { .vl-hud-tax { animation: none; } .vl-bar i { transition: none; } }

@@ -1,0 +1,197 @@
+/* maper.chess — ДЕСКТОПНАЯ версия (≥1024px). Подключается последним. Мобильную версию не трогает.
+   Каркас: слева боковое меню, справа шапка + прокручиваемый контент. Игра: доска слева, панель справа. */
+@media (min-width: 1024px) {
+  html, body { height: 100%; overflow: hidden; }
+  body { display: block; padding: 0; }
+
+  /* ---------- каркас ---------- */
+  .phone-frame {
+    max-width: none !important; width: 100%; height: 100dvh !important; min-height: 0;
+    border: none !important; border-radius: 0 !important; box-shadow: none !important; padding: 0 !important;
+    display: grid; grid-template-columns: 236px minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr);
+    overflow: hidden; background: radial-gradient(900px 500px at 70% -10%, rgba(142, 85, 230,.10), transparent 60%), var(--bg);
+  }
+  .topbar { grid-column: 2; grid-row: 1; padding: 14px 40px; justify-content: flex-end; position: static; }
+  .topbar .brand { display: none; }
+  .topbar-stats { gap: 10px; }
+  .pill { height: 34px; padding: 0 14px; font-size: 13.5px; }
+  .icon-btn-ghost { width: 36px; height: 36px; font-size: 16px; cursor: pointer; }
+  .xp-track { grid-column: 2; grid-row: 2; position: static; }
+  .views {
+    grid-column: 2; grid-row: 3; width: 100%; max-width: none; margin: 0; box-sizing: border-box;
+    padding: 32px max(40px, calc((100% - 1160px) / 2)) 56px; overflow-y: auto;
+  }
+  .view.active { animation: none; }
+  .view-title { font-size: 32px; margin-bottom: 20px; }
+
+  /* ---------- боковое меню ---------- */
+  .bottom-nav {
+    grid-column: 1; grid-row: 1 / -1; display: flex; flex-direction: column; justify-content: flex-start; gap: 4px;
+    padding: 76px 12px 16px; position: relative; overflow-y: auto; border: none !important; border-radius: 0 !important;
+    border-right: 1px solid var(--line) !important; background: rgba(19,20,24,.95); scrollbar-width: thin;
+  }
+  .bottom-nav::before {
+    content: "maper.chess"; position: absolute; top: 20px; left: 22px; padding-left: 32px; line-height: 24px; background: var(--i-knight-ink) no-repeat left center / 24px 24px; font: 600 20px/24px var(--font-display); color: var(--ink);
+  }
+  .nav-btn {
+    flex-direction: row; justify-content: flex-start; gap: 14px; width: 100%; padding: 11px 14px; border-radius: 12px;
+    font-size: 15px; font-weight: 600; letter-spacing: 0; color: var(--ink-dim); cursor: pointer; flex: none; text-align: left;
+  }
+  .nav-btn span { max-width: none; }
+  .nav-btn span:first-child { width: 24px; font-size: 20px; text-align: center; }
+  .nav-btn:hover { background: var(--panel-2); color: var(--ink); }
+  .nav-btn.active { background: var(--tint); color: var(--violet-3); }
+  .nav-btn.active::before { top: 10px; bottom: 10px; left: 0; width: 3px; height: auto; margin: 0; border-radius: 0 4px 4px 0; }
+
+  /* ---------- главная ---------- */
+  #view-home.active { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  #view-home .hero { grid-column: 1 / -1; padding: 8px 0 6px; text-align: left; }
+  #view-home .hero-title { font-size: 46px; line-height: 1.08; }
+  #view-home .hero-sub { max-width: 60ch; margin: 0 0 22px; font-size: 17px; }
+  #view-home .hero-actions { display: flex; gap: 12px; }
+  #view-home .board-deco { display: none; }
+  #view-home .streak-card { grid-column: 1; }
+  #view-home .stats-row { grid-column: 2; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  #view-home .continue-card { grid-column: 1 / -1; }
+  .btn, .ctrl-btn, .level-card, .shop-btn, .mode-tab, .tier-tab, .shop-tab { cursor: pointer; }
+  .btn { padding: 13px 24px; font-size: 15px; }
+
+  /* ---------- уровни, магазин, награды ---------- */
+  .levels-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important; gap: 14px; }
+  .level-card { transition: transform .15s ease, border-color .15s ease; }
+  .level-card:not(:disabled):hover { transform: translateY(-3px); border-color: var(--line-3); }
+  .shop-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important; gap: 16px; }
+  .achievements-list { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .achievements-list > * { margin: 0 !important; }
+  .lsn-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important; }
+
+  /* ---------- рейтинг, друзья, дуэли: списки удобной ширины ---------- */
+  #lb-list, #view-friends, #view-duels { max-width: 860px; }
+  .fr-row, .lb-row { max-width: none; padding: 12px 16px; cursor: pointer; }
+
+  /* ---------- игра и дуэль: доска слева, панель справа ---------- */
+  #view-game.active, #view-duel-game.active {
+    --bs: min(calc(100dvh - 190px), 700px);
+    display: grid; grid-template-columns: var(--bs) minmax(260px, 380px); column-gap: 36px; row-gap: 12px;
+    align-content: start; justify-content: center; align-items: start;
+  }
+  #view-game > :not(.board-wrap), #view-duel-game > :not(.board-wrap) { grid-column: 2; margin: 0; }
+  #view-game > .board-wrap, #view-duel-game > .board-wrap { grid-column: 1; grid-row: 1 / span 8; width: var(--bs); max-width: none; margin: 0; }
+  #view-duel-game > .du-clockrow:not(.du-clockrow-me) { grid-row: auto; }
+  .board-wrap .board { width: var(--bs); max-width: none; border-radius: 16px; }
+  .sq { font-size: calc(var(--bs) / 8 * .72); }
+  .game-header { padding-bottom: 6px; }
+  .game-name { font-size: 24px; }
+  .game-status { font-size: 16px; min-height: 24px; padding: 12px 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+  .game-controls { display: flex; flex-direction: column; gap: 10px; }
+  .game-controls .ctrl-btn { width: 100%; padding: 14px; font-size: 15px; }
+
+  /* ---------- окна и уведомления: по центру экрана ---------- */
+  .modal { position: fixed; z-index: 200; align-items: center; justify-content: center; padding: 24px; }
+  .modal-card {
+    width: 100%; max-width: 480px; max-height: calc(100dvh - 48px); overflow-y: auto; padding: 36px 28px 26px;
+    border: 1px solid var(--line-2); border-radius: 24px; box-shadow: 0 40px 90px -20px rgba(0,0,0,.8);
+  }
+  .modal-card::before { display: none; }
+  .modal-card h3 { font-size: 26px; }
+  .modal-card p { font-size: 14.5px; }
+  .toast { position: fixed; left: calc(50% + 118px); bottom: 28px; z-index: 300; max-width: 520px; font-size: 14px; }
+
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--panel-3); border-radius: 10px; border: 2px solid var(--bg); }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .phone-frame { grid-template-columns: 200px minmax(0, 1fr); }
+  .views { padding: 26px 28px 48px; }
+  .topbar { padding: 12px 28px; }
+  #view-game.active, #view-duel-game.active { column-gap: 24px; --bs: min(calc(100dvh - 190px), 560px); }
+}
+
+/* ===================== ДОРАБОТКА ДИЗАЙНА (v2) ===================== */
+@media (min-width: 1024px) {
+  :root { --card: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.015)); }
+
+  /* --- боковое меню: логотип, группа, нижняя подпись --- */
+  .bottom-nav { padding-top: 84px; background: linear-gradient(180deg, #15111c, #0f0c14); }
+  .bottom-nav::before {
+    content: "maper.chess"; left: 70px; top: 26px; font-size: 21px; letter-spacing: -.01em;
+  }
+  .bottom-nav::after {
+    content: ""; position: absolute; left: 20px; top: 20px; width: 40px; height: 40px; border-radius: 12px;
+    background: url(../assets/icon-192.png) center / cover, var(--violet); box-shadow: 0 6px 18px -4px rgba(142, 85, 230,.55);
+  }
+  .nav-btn { padding: 12px 14px; font-size: 15px; }
+  .nav-btn span:first-child { font-size: 18px; opacity: .9; }
+  .nav-btn.active { background: linear-gradient(90deg, var(--tint-2), var(--tint)); box-shadow: inset 0 0 0 1px rgba(185, 139, 245,.22); }
+  .nav-btn.active::before { display: none; }
+
+  /* --- шапка --- */
+  .topbar { background: transparent; border-bottom: none; backdrop-filter: none; padding-top: 20px; padding-bottom: 8px; }
+  .pill { background: var(--panel); border-color: var(--line-2); }
+  .xp-track { height: 3px; margin: 0 40px; border-radius: 3px; overflow: hidden; }
+  .view-title { font-size: 34px; letter-spacing: -.015em; }
+
+  /* --- общий вид карточек --- */
+  .stat-card, .streak-card, .continue-card, .level-card, .shop-card, .ach-row, .lc, .rw-chip, .fr-row, .lb-row {
+    background: var(--card), var(--panel); border: 1px solid var(--line-2); border-radius: 18px;
+    box-shadow: 0 12px 28px -18px rgba(0,0,0,.8);
+  }
+  .level-card:not(:disabled):hover, .shop-card:hover, .lc:hover { border-color: rgba(185, 139, 245,.45); box-shadow: 0 18px 34px -18px rgba(95, 47, 184,.55); }
+
+  /* --- главная: большой «баннер» + две колонки --- */
+  #view-home { gap: 22px; }
+  #view-home .hero {
+    position: relative; overflow: hidden; padding: 44px 48px; border-radius: 26px; border: 1px solid rgba(185, 139, 245,.25);
+    background: radial-gradient(520px 260px at 92% 15%, rgba(142, 85, 230,.38), transparent 70%),
+                linear-gradient(135deg, #231a3d 0%, #17121f 60%, #13101a 100%);
+  }
+  #view-home .hero::after {
+    content: ""; position: absolute; right: 56px; top: 50%; transform: translateY(-50%); width: 190px; height: 190px;
+    background: rgba(220, 198, 255,.13); -webkit-mask: var(--i-knight) center / contain no-repeat; mask: var(--i-knight) center / contain no-repeat; pointer-events: none;
+  }
+  #view-home .hero-title { font-size: 50px; max-width: 14ch; }
+  #view-home .hero-actions { margin: 0; }
+  #view-home .btn-primary { padding: 15px 30px; font-size: 16px; border-radius: 14px; }
+  #view-home .btn-ghost { padding: 15px 26px; font-size: 16px; border-radius: 14px; }
+  #view-home .streak-card { padding: 22px 24px; }
+  #view-home .streak-num { font-size: 44px; }
+  #view-home .streak-flame { font-size: 40px; }
+  #view-home .stats-row { gap: 16px; align-self: stretch; }
+  #view-home .stat-card { display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 22px 18px; text-align: center; }
+  #view-home .stat-value { font-size: 34px; }
+  #view-home .stat-label { font-size: 12.5px; }
+  #view-home .continue-card { padding: 20px 26px; }
+
+  /* --- вкладки: «сегментами» --- */
+  .mode-tab, .tier-tab, .shop-tab { padding: 10px 20px; font-size: 14px; border-radius: 12px; }
+  .tier-tabs { margin-bottom: 22px; }
+
+  /* --- уровни / уроки: сетка плотнее и читабельнее --- */
+  .levels-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important; gap: 16px; }
+  .lsn-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important; gap: 16px; }
+  .lc { padding: 18px 18px 16px; text-align: left; }
+  .lsn-hero { padding: 22px 24px; border-radius: 20px; margin-bottom: 16px; }
+  .achievements-list { gap: 16px; }
+  .ach-row { padding: 16px 18px; }
+
+  /* --- плашки наград за обучение --- */
+  .rw-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin: 0 0 20px; }
+  .rw-chip { flex: none; padding: 14px 16px; gap: 14px; }
+  .rw-chip b { font-size: 14px; margin-bottom: 2px; }
+  .rw-chip small { font-size: 12.5px; }
+  .rw-chip i { height: 5px; margin-top: 8px; }
+
+  /* --- игра: правая панель как карточка --- */
+  #view-game > :not(.board-wrap), #view-duel-game > :not(.board-wrap) { max-width: 380px; width: 100%; }
+  .game-header { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 18px; background: var(--card), var(--panel); border: 1px solid var(--line-2); }
+  .game-status { font-size: 15.5px; line-height: 1.45; }
+  .game-controls .ctrl-btn { border-radius: 14px; background: var(--panel); border: 1px solid var(--line-2); }
+  .game-controls .ctrl-btn:hover { border-color: var(--line-3); background: var(--panel-2); }
+  .game-controls .ctrl-danger:hover { border-color: rgba(238,129,149,.55); }
+  .board-wrap .board { border: 1px solid var(--line-3); box-shadow: 0 30px 60px -24px rgba(0,0,0,.85), 0 0 0 8px rgba(255,255,255,.025); }
+
+  /* --- модалки --- */
+  .modal { background: rgba(8,9,12,.78); }
+  .modal-card { background: linear-gradient(180deg, var(--panel-2), var(--panel)); max-width: 500px; padding: 40px 32px 30px; }
+  .modal-actions .btn { padding: 14px; }
+}

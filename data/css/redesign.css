@@ -1,0 +1,332 @@
+/* =====================================================================
+   maper.chess — redesign «Obsidian + Violet + Ember»
+   Концепция прежняя: графит, фиолетовый для главного действия, золото для наград,
+   огонь для серии. Улучшено: типографика, глубина поверхностей, ритм, огонёк.
+   Шрифты: Unbounded (акцентный: цифры, заголовки) + Onest (интерфейс). Оба с кириллицей.
+   Подключается ПОСЛЕДНИМ, после clean.css.
+   ===================================================================== */
+
+:root {
+  --bg: #0b0910;
+  --bg-2: #110d18;
+  --panel: #16121e;
+  --panel-2: #1d1827;
+  --panel-3: #2a2437;
+  --line: rgba(255, 255, 255, .06);
+  --line-2: rgba(255, 255, 255, .11);
+  --line-3: rgba(255, 255, 255, .2);
+
+  --ink: #f2f0ea;
+  --ink-dim: #a3a3ae;
+  --ink-faint: #6c6e7a;
+
+  --violet: #8e55e6;
+  --violet-2: #b98bf5;
+  --violet-3: #dcc6ff;
+  --violet-deep: #5f2fb8;
+  --tint: rgba(142, 85, 230, .13);
+  --tint-2: rgba(142, 85, 230, .22);
+
+  --gold: #f0c67e;
+  --flame: #ff9a4a;
+  --ember-1: #ffd36b;
+  --ember-2: #ff8a3a;
+  --ember-3: #e2412a;
+
+  --radius: 22px;
+  --r-md: 16px;
+  --r-sm: 12px;
+
+  --font-ui: 'Onest', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-accent: 'Unbounded', 'Onest', system-ui, sans-serif;
+
+  --surface: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012)), var(--panel);
+  --surface-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 20px 40px -28px rgba(0,0,0,.9);
+  --violet-grad: linear-gradient(135deg, #b98bf5 0%, #8e55e6 45%, #6a35c8 100%);
+  --ember-grad: linear-gradient(180deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+  --ease: cubic-bezier(.2, .8, .2, 1);
+}
+
+/* ---------- база и типографика ---------- */
+html, body {
+  font-family: var(--font-ui);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+body {
+  background:
+    radial-gradient(900px 520px at 85% -10%, rgba(142, 85, 230, .10), transparent 60%),
+    radial-gradient(700px 420px at -10% 110%, rgba(255, 138, 58, .05), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--ink);
+}
+h1, h2, h3, h4 { letter-spacing: -.02em; }
+b, strong { font-weight: 700; }
+::selection { background: rgba(142, 85, 230, .35); color: #fff; }
+
+/* заголовки экрана — акцентный шрифт */
+.hero-title, .view > h2, .view-title, .section-title, .tier-banner h2 {
+  font-family: var(--font-accent); font-weight: 600; letter-spacing: -.035em;
+}
+.hero-title { font-size: clamp(30px, 7.4vw, 50px); line-height: 1.04; }
+.hero-title br + *, .hero-title { text-wrap: balance; }
+
+/* ---------- шапка ---------- */
+.topbar {
+  background: linear-gradient(180deg, rgba(10, 11, 15, .92), rgba(10, 11, 15, .72));
+  backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  border-bottom: 1px solid var(--line);
+}
+.brand-name { font-family: var(--font-accent); font-weight: 600; font-size: 16px; letter-spacing: -.03em; }
+.brand-logo { border-radius: 11px; box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 6px 18px -6px rgba(142, 85, 230,.6); }
+
+.topbar-stats { gap: 8px; }
+.pill {
+  height: 32px; padding: 0 12px; gap: 7px;
+  font-family: var(--font-accent); font-size: 12.5px; font-weight: 600; letter-spacing: -.01em;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015)), var(--panel);
+  border: 1px solid var(--line-2); color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+.pill-rank { border-color: rgba(142, 85, 230, .3); }
+.pill-coins { color: var(--gold); border-color: rgba(240, 198, 126, .26); }
+
+/* ---------- ОГОНЁК в шапке ---------- */
+.pill-streak {
+  position: relative; gap: 6px; padding: 0 12px 0 8px; color: var(--ink-faint);
+  transition: color .3s ease, border-color .3s ease, background .3s ease, box-shadow .3s ease;
+}
+.pill-streak .flame {
+  --fs: 16px; width: 18px; height: 20px; filter: none; opacity: 1;
+  display: inline-grid; place-items: center;
+}
+.pill-streak .flame .fl { filter: grayscale(1) brightness(.75); opacity: .55; }
+.pill-streak.active {
+  color: #fff3e2;
+  border-color: rgba(255, 154, 74, .5);
+  background:
+    radial-gradient(120% 140% at 20% 100%, rgba(255, 120, 50, .38), transparent 60%),
+    linear-gradient(180deg, rgba(255, 170, 90, .16), rgba(255, 110, 50, .06)),
+    var(--panel);
+  box-shadow: inset 0 1px 0 rgba(255, 220, 170, .18), 0 6px 18px -8px rgba(255, 120, 50, .75);
+}
+.pill-streak.active .flame { filter: drop-shadow(0 0 5px rgba(255, 140, 60, .8)); }
+.pill-streak.active .flame .fl { filter: none; opacity: 1; }
+.pill-streak.active #streak-count {
+  background: linear-gradient(180deg, #fff6e0, #ffc78a); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* ---------- кнопки ---------- */
+.btn { font-family: var(--font-ui); font-weight: 700; letter-spacing: -.005em; border-radius: 14px; }
+.btn-primary {
+  background: var(--violet-grad); border-color: transparent; color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 14px 30px -14px rgba(142, 85, 230, .85);
+}
+.btn-primary:hover { filter: brightness(1.06); }
+.btn-ghost {
+  background: rgba(255,255,255,.03); border: 1px solid var(--line-2); color: var(--ink);
+}
+.btn-ghost:hover { background: rgba(255,255,255,.06); border-color: var(--line-3); }
+
+/* главная кнопка «Играть» */
+.bx-play {
+  border-radius: var(--radius) !important;
+  background:
+    radial-gradient(120% 160% at 100% 0%, rgba(255,255,255,.18), transparent 50%),
+    var(--violet-grad) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 22px 44px -22px rgba(142, 85, 230, .95) !important;
+  border: 0 !important;
+}
+.bx-play-body b { font-family: var(--font-accent) !important; font-weight: 600 !important; letter-spacing: -.03em; }
+.bx-play-body small { font-weight: 500; opacity: .85; }
+.bx-play-ico { background: rgba(255,255,255,.18) !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.25); }
+
+/* ---------- карточки ---------- */
+.hp-me, .hp-card, .tg-card, .level-card, .shop-card, .continue-card, .stat-card, .lb-row, .fr-row, .ach-row, .vl-card {
+  border-radius: var(--radius);
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  box-shadow: var(--surface-shadow);
+}
+.hp-me-t b, .hp-card-body b, .tg-title { font-family: var(--font-accent); font-weight: 600; letter-spacing: -.03em; }
+.hp-me-t b { font-size: 24px; }
+.hp-card-body b { font-size: 15px; }
+.hp-me-t small, .hp-card-body small, .tg-kicker {
+  font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+}
+.hp-me-t small { color: var(--ink-faint); }
+.hp-xp { height: 8px !important; border-radius: 999px; background: rgba(255,255,255,.06) !important; overflow: hidden; }
+.hp-xp i { background: linear-gradient(90deg, var(--violet-deep), var(--violet-2)) !important; box-shadow: 0 0 12px rgba(185, 139, 245, .6); border-radius: inherit; }
+.hp-daily { border-color: rgba(240, 198, 126, .22) !important; background: radial-gradient(120% 140% at 0% 0%, rgba(240, 198, 126, .08), transparent 55%), var(--surface) !important; }
+.hp-card-ico { border-radius: 14px; }
+.hp-go { font-weight: 700; }
+
+.tg-title { font-size: 17px; }
+
+/* =====================================================================
+   КАРТОЧКА ОГОНЬКА — полностью новая подача
+   ===================================================================== */
+#view-home .streak-card.sk {
+  margin: 16px 0 14px; padding: 20px 20px 18px;
+  border-radius: 26px;
+  border: 1px solid var(--line-2);
+  background:
+    radial-gradient(80% 90% at 0% 0%, rgba(255, 138, 58, .10), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)),
+    var(--panel);
+  box-shadow: var(--surface-shadow);
+  isolation: isolate;
+}
+/* мягкое «зарево» внизу у горящей серии */
+#view-home .streak-card.sk::after {
+  content: ""; position: absolute; z-index: -1; left: -10%; right: -10%; bottom: -60%; height: 110%;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(255, 120, 50, .0), transparent 70%);
+  transition: background .5s ease; pointer-events: none;
+}
+#view-home .streak-card.sk.streak-on { border-color: rgba(255, 154, 74, .24); }
+#view-home .streak-card.sk.streak-done {
+  border-color: rgba(255, 154, 74, .42);
+  background:
+    radial-gradient(70% 100% at 0% 0%, rgba(255, 150, 70, .20), transparent 60%),
+    radial-gradient(60% 80% at 100% 100%, rgba(226, 65, 42, .12), transparent 70%),
+    linear-gradient(180deg, #1f1712 0%, #17141a 60%, #131218 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 210, 160, .10), 0 24px 50px -30px rgba(255, 110, 40, .55), 0 20px 40px -28px rgba(0,0,0,.9);
+}
+#view-home .streak-card.sk.streak-done::after {
+  background: radial-gradient(50% 50% at 50% 50%, rgba(255, 120, 50, .16), transparent 70%);
+}
+
+.sk-top { gap: 18px; align-items: center; }
+
+/* эмблема: «очаг» вместо простого круга */
+.sk-emblem {
+  width: 84px; height: 84px; border-radius: 26px;
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+  border: 1px solid var(--line-2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+}
+.sk-emblem .flame { --fs: 40px; top: -2px; }
+.streak-card.streak-on .sk-emblem {
+  border-color: rgba(255, 154, 74, .35);
+  background: radial-gradient(70% 70% at 50% 75%, rgba(255, 130, 60, .22), transparent 75%), rgba(255,255,255,.02);
+}
+.streak-card.streak-done .sk-emblem {
+  border-color: rgba(255, 180, 110, .6);
+  background:
+    radial-gradient(70% 70% at 50% 80%, rgba(255, 130, 60, .5), transparent 75%),
+    linear-gradient(180deg, #3a2216, #22150f);
+  box-shadow: inset 0 1px 0 rgba(255, 220, 170, .25), 0 0 0 6px rgba(255, 140, 60, .07), 0 14px 34px -10px rgba(255, 110, 40, .7);
+}
+
+/* число серии */
+.sk-count { gap: 10px; }
+.sk-count b {
+  font-family: var(--font-accent); font-weight: 700; font-size: 46px; letter-spacing: -.05em; line-height: .9;
+  color: var(--ink);
+}
+.streak-card.streak-on .sk-count b,
+.streak-card.streak-done .sk-count b {
+  background: linear-gradient(180deg, #fff7e6 0%, #ffd08a 55%, #ff9a4a 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 4px 14px rgba(255, 130, 50, .35));
+}
+.sk-count span { font-family: var(--font-ui); font-weight: 600; font-size: 14px; color: var(--ink-dim); letter-spacing: 0; }
+.sk-note { margin-top: 8px; font-size: 13px; line-height: 1.45; color: var(--ink-dim); max-width: 34ch; }
+
+/* заморозки */
+#view-home .streak-card.sk .streak-freeze {
+  height: 32px; padding: 0 12px; font-family: var(--font-accent); font-weight: 600; font-size: 12.5px;
+  background: linear-gradient(180deg, rgba(145, 210, 247, .14), rgba(145, 210, 247, .05));
+  border: 1px solid rgba(145, 210, 247, .32);
+  box-shadow: inset 0 1px 0 rgba(220, 240, 255, .14);
+}
+
+/* неделя: единая «дорожка», дни соединены линией */
+#view-home .streak-card.sk .streak-week {
+  position: relative; margin-top: 20px; padding: 14px 10px 12px; gap: 0;
+  border-radius: 18px; background: rgba(0, 0, 0, .22); border: 1px solid var(--line);
+}
+#view-home .streak-card.sk .streak-week::before {
+  content: ""; position: absolute; left: calc(10px + 100% / 14); right: calc(10px + 100% / 14); bottom: 29px;
+  height: 2px; border-radius: 2px; background: rgba(255,255,255,.07);
+}
+#view-home .streak-card.sk .streak-week .wd { position: relative; z-index: 1; gap: 9px; }
+#view-home .streak-card.sk .streak-week .wd i {
+  font-family: var(--font-ui); font-size: 10.5px; font-weight: 700; letter-spacing: .1em; color: var(--ink-faint);
+}
+#view-home .streak-card.sk .streak-week .wd b {
+  width: 34px; height: 34px; border-radius: 12px;
+  background: var(--panel-2); border: 1px solid var(--line-2);
+}
+#view-home .streak-card.sk .streak-week .wd b::after { background: rgba(255,255,255,.18); }
+#view-home .streak-card.sk .streak-week .wd.done b {
+  border-color: rgba(255, 170, 100, .55);
+  background: radial-gradient(80% 80% at 50% 85%, rgba(255, 120, 50, .55), transparent 80%), linear-gradient(180deg, #3b2418, #24160f);
+  box-shadow: inset 0 1px 0 rgba(255, 220, 170, .2), 0 6px 14px -8px rgba(255, 110, 40, .8);
+}
+#view-home .streak-card.sk .streak-week .wd.frozen b {
+  border-radius: 12px; background: linear-gradient(180deg, rgba(145, 210, 247, .18), rgba(145, 210, 247, .06));
+}
+#view-home .streak-card.sk .streak-week .wd.is-today i { color: var(--violet-2); }
+#view-home .streak-card.sk .streak-week .wd.is-today b {
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px rgba(185, 139, 245, .75);
+}
+.wd b .flame-wd { --fs: 15px; }
+
+/* прогресс до награды */
+.sk-goal { border-top: 1px solid var(--line); }
+.sk-goal-t { font-size: 12.5px; font-weight: 600; }
+.sk-bar { height: 8px; background: rgba(255,255,255,.06); }
+.sk-bar i { background: linear-gradient(90deg, var(--ember-3), var(--ember-2), var(--ember-1)); box-shadow: 0 0 12px rgba(255, 140, 60, .6); }
+
+/* ---------- нижняя навигация (телефон) ---------- */
+.bottom-nav, nav.nav, .tabbar {
+  background: linear-gradient(180deg, rgba(14, 15, 20, .82), rgba(10, 11, 15, .96));
+  backdrop-filter: blur(16px) saturate(1.3); -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border-top: 1px solid var(--line);
+}
+.nav-btn { font-family: var(--font-ui); font-weight: 600; letter-spacing: .01em; }
+.nav-btn.active { color: var(--violet-3); }
+
+/* ---------- поля ввода ---------- */
+input[type="text"], input[type="search"], input[type="email"], input[type="password"], textarea, select {
+  font-family: var(--font-ui);
+}
+
+/* ---------- ПК ---------- */
+@media (min-width: 900px) {
+  .pill { height: 36px; padding: 0 14px; font-size: 13px; }
+  .pill-streak { padding-left: 10px; }
+  .pill-streak .flame { --fs: 18px; width: 20px; height: 22px; }
+
+  .nav-btn.active { background: var(--tint); box-shadow: inset 0 0 0 1px rgba(142, 85, 230, .25); }
+
+  /* главная: прогресс слева, огонёк справа — без пустой половины экрана */
+  #view-home.active.home-ret,
+  #view-home.active.home-ret:has(#home-install > *) {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 20px 22px;
+    grid-template-areas: "top streak" "inst inst" "tg tg";
+  }
+  #view-home.active.home-ret > #home-top > * { margin: 0 !important; }
+  #view-home.active.home-ret > #streak-card { grid-area: streak; margin: 0 !important; align-self: stretch; display: flex; flex-direction: column; }
+  #view-home.active.home-ret > #streak-card .streak-week { margin-top: auto; }
+  #view-home.active.home-ret > #streak-card .sk-top { margin-bottom: 22px; }
+  #view-home.active.home-ret > .stats-row, #view-home.active.home-ret > #home-deco { display: none; }
+  #view-home .sk-count b { font-size: 56px; }
+  #view-home .sk-emblem { width: 96px; height: 96px; border-radius: 30px; }
+  #view-home .sk-emblem .flame { --fs: 46px; }
+  #view-home .streak-card.sk .streak-week .wd b { width: 42px; height: 42px; border-radius: 14px; }
+  #view-home .streak-card.sk .streak-week::before { bottom: 33px; }
+  .wd b .flame-wd { --fs: 18px; }
+}
+
+@media (max-width: 380px) {
+  .sk-emblem { width: 70px; height: 70px; border-radius: 22px; }
+  .sk-emblem .flame { --fs: 32px; }
+  .sk-count b { font-size: 38px; }
+  #view-home .streak-card.sk .streak-week .wd b { width: 30px; height: 30px; border-radius: 10px; }
+}

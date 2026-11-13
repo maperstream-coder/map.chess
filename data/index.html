@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>maper.chess — Learn Chess</title>
+<script>
+/* Загрузочный экран нужен только при настоящем запуске приложения.
+   Пока приложение не закрыто (sessionStorage живёт, пока его не закрыли), при возврате в него и при перезагрузке
+   страницы системой экран загрузки НЕ показывается — игрок сразу попадает туда, где был.
+   Принудительно показать загрузку: добавьте к адресу ?splash=1 */
+(function () {
+  var warm = false, now = Date.now();
+  try {
+    var nav = ((performance.getEntriesByType && performance.getEntriesByType("navigation")[0]) || {}).type || "navigate";
+    var seen = +localStorage.getItem("mc_last_seen") || 0;
+    warm = sessionStorage.getItem("mc_boot") === "1" ||
+           ((nav === "reload" || nav === "back_forward") && seen > 0 && now - seen < 30 * 60 * 1000);
+    if (/[?&]splash=1/.test(location.search)) warm = false;
+    window.__mcLastView = sessionStorage.getItem("mc_view");      /* раздел, где игрок был; читаем сразу, пока модули его не перезаписали */
+    sessionStorage.setItem("mc_boot", "1");
+  } catch (e) {}
+  window.__mcWarm = warm;
+  if (warm) document.documentElement.className += " warm";
+  function stamp() { try { localStorage.setItem("mc_last_seen", String(Date.now())); } catch (e) {} }
+  document.addEventListener("visibilitychange", function () { if (document.hidden) stamp(); });
+  window.addEventListener("pagehide", stamp);
+  stamp();
+})();
+</script>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=2" />
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png?v=2" />
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2" />
+<meta name="theme-color" content="#0c0a11" />
+<meta name="color-scheme" content="dark" />
+<meta name="description" content="MaperChess — шахматные задачи, партии против ботов, ежедневное испытание, достижения и награды. Бесплатно, без регистрации." />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="MaperChess" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="MaperChess" />
+<meta property="og:title" content="MaperChess — шахматные задачи и партии" />
+<meta property="og:description" content="Решай задачи, проходи ежедневное испытание, открывай награды. Бесплатно и без регистрации." />
+<meta property="og:image" content="https://maperchess.vercel.app/assets/icon-512.png?v=2" />
+<meta name="twitter:card" content="summary" />
+<link rel="manifest" href="manifest.webmanifest" />
+<style>
+/* базовая защита, если css не успел загрузиться */
+body{margin:0;background:#0c0a11;color:#eceae4}
+.brand-logo{width:34px;height:34px;object-fit:contain;display:block;filter:drop-shadow(0 0 10px rgba(142,85,230,.55))}
+.tier-tabs[hidden]{display:none!important}
+html.warm #preloader{display:none!important}
+img{max-width:100%}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/icons.css?v=2" />
+<link rel="stylesheet" href="css/styles.css" />
+<link rel="stylesheet" href="css/extras.css" />
+<link rel="stylesheet" href="css/desktop.css?v=desk4" />
+<link rel="stylesheet" href="css/polish.css?v=2" />
+<link rel="stylesheet" href="css/fx.css" />
+<link rel="stylesheet" href="css/home-deco.css?v=3" />
+<link rel="stylesheet" href="css/shell.css?v=3" />
+<link rel="stylesheet" href="css/play.css?v=2" />
+<link rel="stylesheet" href="css/app.css?v=2" />
+<link rel="stylesheet" href="css/pc.css?v=2" />
+<link rel="stylesheet" href="css/streak-up.css?v=1" />
+<link rel="stylesheet" href="css/village.css?v=6" />
+<link rel="stylesheet" href="css/village-game.css?v=2" />
+<link rel="stylesheet" href="css/boost.css?v=2" />
+<link rel="stylesheet" href="css/analysis.css?v=3" />
+<link rel="stylesheet" href="css/think.css?v=2" />
+<link rel="stylesheet" href="css/trainer.css?v=1" />
+<link rel="stylesheet" href="css/fischer.css?v=1" />
+<link rel="stylesheet" href="css/move-fx.css?v=2" />
+<link rel="stylesheet" href="css/smooth.css?v=1" />
+<link rel="stylesheet" href="css/clean.css?v=1" />
+<link rel="stylesheet" href="css/redesign.css?v=2" />
+<link rel="stylesheet" href="css/brand.css?v=1" />
+</head>
+<body>
+<script src="js/icons.js?v=2"></script>
+<noscript><p style="padding:24px;font-family:sans-serif;color:#eceae4">MaperChess требует включённого JavaScript. / MaperChess needs JavaScript enabled.</p></noscript>
+<script src="js/protect.js?v=2"></script>
+<script src="js/pwa.js?v=1"></script>
+<style>
+/* ===== PRELOADER: рыцарь обходит всю доску, прогресс = клетки ===== */
+#preloader{
+  position:fixed;inset:0;z-index:9999;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
+  --p:0;background:radial-gradient(60% 45% at 50% 42%,#231a3d 0%,#0c0a11 75%);
+  font-family:'Onest',system-ui,sans-serif;
+  transition:opacity .5s ease,visibility .5s ease;
+}
+#preloader.done{opacity:0;visibility:hidden;pointer-events:none}
+.pl-glow{
+  position:absolute;width:420px;height:420px;border-radius:50%;top:calc(50% - 250px);
+  background:radial-gradient(circle,rgba(142, 85, 230,.5) 0%,transparent 66%);
+  opacity:calc(.1 + var(--p)*.3);transition:opacity .2s linear;
+}
+.pl-board{
+  position:relative;width:min(272px,72vw);aspect-ratio:1;border-radius:16px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.14);box-shadow:0 30px 60px -24px rgba(0,0,0,.9);
+}
+.pl-board svg,.pl-board canvas{position:absolute;inset:0;display:block;width:100%;height:100%}
+#pl-svg{transition:opacity .6s ease}
+#preloader.ready #pl-svg{opacity:.3}
+.pl-sq{transition:fill .4s ease}
+.pl-sq.l{fill:rgba(255,255,255,.06)}.pl-sq.d{fill:rgba(255,255,255,.015)}
+.pl-sq.l.on{fill:rgba(142, 85, 230,.26)}.pl-sq.d.on{fill:rgba(142, 85, 230,.16)}
+#pl-trail{fill:none;stroke:#b98bf5;stroke-opacity:.3;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;transition:stroke .5s ease}
+#preloader.ready #pl-trail{stroke:#e3bf7c;stroke-opacity:.6}
+.pl-board{transition:transform .6s ease,box-shadow .6s ease}
+#preloader.ready .pl-board{transform:scale(1.03);box-shadow:0 0 70px -8px rgba(142, 85, 230,.6)}
+#preloader.ready #pl-knight{opacity:0}
+#pl-knight{transition:transform .12s ease-out,opacity .3s ease}
+#pl-knight text{font-size:17px;fill:#f6f2e6;stroke:#0c0a11;stroke-width:1.1;paint-order:stroke;font-family:"Segoe UI Symbol","Noto Sans Symbols 2","Apple Symbols","DejaVu Sans",sans-serif}
+.pl-ring{fill:none;stroke:#b98bf5;stroke-width:1.2;transform-box:fill-box;transform-origin:center;animation:plRing 1.2s ease-out infinite}
+@keyframes plRing{from{opacity:.9;transform:scale(.7)}to{opacity:0;transform:scale(1.5)}}
+.pl-brand{display:flex;align-items:center;gap:10px}
+.pl-mark{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(142,85,230,.7))}
+.pl-name{font-family:'Unbounded',Georgia,serif;font-size:26px;font-weight:600;color:#eceae4;letter-spacing:-.02em}
+.pl-status{display:flex;gap:10px;align-items:baseline;margin-top:-10px;font-size:13px;font-weight:600;color:#9c9ca6}
+.pl-pct{min-width:38px;text-align:right;font-weight:800;color:#eceae4;font-variant-numeric:tabular-nums}
+.pl-snd{position:absolute;left:0;right:0;bottom:max(22px,env(safe-area-inset-bottom));text-align:center;font-size:12px;font-weight:600;color:#8d8d99;opacity:0;pointer-events:none;transition:opacity .4s ease}
+.pl-snd.show{opacity:1;animation:plSnd 1.8s ease-in-out infinite}
+@keyframes plSnd{0%,100%{color:#8d8d99}50%{color:#e3d2ff}}
+@media (prefers-reduced-motion: reduce){.pl-snd.show{animation:none}.pl-ring{animation:none}#pl-knight,.pl-sq{transition:none}}
+</style>
+<div id="preloader">
+  <div class="pl-glow"></div>
+  <div class="pl-board">
+    <svg viewBox="0 0 160 160" id="pl-svg" aria-hidden="true"><polyline id="pl-trail" points=""/></svg>
+    <canvas id="pl-cv" width="512" height="512" aria-hidden="true"></canvas>
+    <svg viewBox="0 0 160 160" aria-hidden="true"><g id="pl-knight"><circle class="pl-ring" cx="10" cy="10" r="9"/><text x="10" y="11" text-anchor="middle" dominant-baseline="central">&#9822;&#xFE0E;</text></g></svg>
+  </div>
+  <div class="pl-brand">
+    <img class="pl-mark" src="assets/logo-mark.png?v=2" alt="" width="30" height="30">
+    <span class="pl-name">maper.chess</span>
+  </div>
+  <div class="pl-status"><span id="pl-msg"></span><span class="pl-pct" id="pl-pct">0%</span></div>
+  <div class="pl-snd" id="pl-snd" aria-hidden="true"></div>
+</div>
+<script src="js/intro-sfx.js?v=1"></script>
+<script>
+(function(){
+  /* ===== ЛОГОТИП: прозрачный знак assets/logo-mark.png (фон вырезать не нужно) ===== */
+  var LOGO_URL = 'assets/logo-mark.png?v=2';
+  function useLogo(url, withPreloader){
+    if (withPreloader) plSetLogo(url);
+    var applyBrand = function(){ document.querySelectorAll('.brand-logo').forEach(function(b){ b.src = url; }); };
+    if (document.querySelector('.brand-logo')) applyBrand();
+    else window.addEventListener('load', applyBrand);
+  }
+  function loadLogo(withPreloader){ useLogo(LOGO_URL, withPreloader); }
+  /* возврат в приложение: загрузочного экрана нет — убираем его сразу и больше ничего не рисуем */
+  if (window.__mcWarm){
+    var p0 = document.getElementById('preloader'); if (p0 && p0.parentNode) p0.parentNode.removeChild(p0);
+    loadLogo(false);
+    return;
+  }
+  loadLogo(true);
+
+  var T=[57,40,50,56,41,58,48,33,16,1,11,5,15,30,47,62,52,46,63,53,59,49,32,42,36,26,43,60,54,39,22,7,13,23,6,12,2,8,25,35,45,55,61,51,34,28,38,44,29,19,9,24,18,3,20,37,31,14,4,21,27,10,0,17];
+  var ru=(navigator.language||'').slice(0,2)==='ru';
+  var MSG=ru?['Расставляем фигуры','Размечаем доску','Делаем первый ход']:['Setting up the pieces','Drawing the board','Making the first move'];
+  var pct=document.getElementById('pl-pct'), msg=document.getElementById('pl-msg');
+  var snd=document.getElementById('pl-snd'); if(snd) snd.textContent=ru?'Коснись экрана — включится звук':'Tap the screen to turn on sound';
+  var pre=document.getElementById('preloader'), svg=document.getElementById('pl-svg');
+  var trail=document.getElementById('pl-trail'), knight=document.getElementById('pl-knight');
+  var NS='http://www.w3.org/2000/svg', S=20, sq=[], pts=[], i;
+  for(i=0;i<64;i++){
+    var r=document.createElementNS(NS,'rect'), rr=(i/8)|0, cc=i%8;
+    r.setAttribute('x',cc*S);r.setAttribute('y',rr*S);r.setAttribute('width',S);r.setAttribute('height',S);
+    r.setAttribute('class','pl-sq '+((rr+cc)%2?'d':'l'));
+    svg.insertBefore(r,trail);sq[i]=r;
+  }
+  var cv=document.getElementById('pl-cv'), cx=cv.getContext('2d'), T8=cv.width/8, lg=null, act=[];
+  function plSetLogo(url){
+    var im=new Image();
+    im.onload=function(){
+      var c=document.createElement('canvas'); c.width=c.height=cv.width;
+      var k=Math.min(c.width/im.width,c.height/im.height)*0.9, w=im.width*k, hh=im.height*k;
+      c.getContext('2d').drawImage(im,(c.width-w)/2,(c.height-hh)/2,w,hh);
+      lg=c;
+    };
+    im.src=url;
+  }
+  function paint(now){
+    if(lg){
+      for(var n=act.length-1;n>=0;n--){
+        var q=act[n], a=Math.min(1,(now-q.t)/420), sx=(q.s%8)*T8, sy=((q.s/8)|0)*T8;
+        cx.clearRect(sx,sy,T8,T8); cx.globalAlpha=a; cx.drawImage(lg,sx,sy,T8,T8,sx,sy,T8,T8); cx.globalAlpha=1;
+        if(a>=1) act.splice(n,1);
+      }
+    }
+    if(pre.parentNode) requestAnimationFrame(paint);
+  }
+  requestAnimationFrame(paint);
+  var MIN_TIME=2000, MAX_TIME=6000, start=performance.now(), loaded=false, idx=0, shown=-1, finished=false;
+  function target(){
+    if(loaded) return 100;
+    var t=(performance.now()-start)/MAX_TIME;
+    return Math.min(90,90*Math.pow(t,0.6));
+  }
+  function visit(){
+    var s=T[idx], x=(s%8)*S, y=((s/8)|0)*S;
+    sq[s].setAttribute('class',sq[s].getAttribute('class')+' on'); act.push({s:s,t:performance.now()});
+    pts.push((x+S/2)+','+(y+S/2)); trail.setAttribute('points',pts.join(' '));
+    knight.style.transform='translate('+x+'px,'+y+'px)';
+    idx++;
+    var p=idx/64; pre.style.setProperty('--p',p);
+    pct.textContent=Math.round(p*100)+'%';
+    var m=idx<22?0:idx<44?1:2; if(m!==shown){ if(shown!==-1 && window.PlSound) PlSound.stage(m); shown=m;msg.textContent=MSG[m];}
+    if(window.PlSound){ PlSound.step(idx,p); if(idx===56) PlSound.riser(); }
+  }
+  function close(){
+    pre.classList.add('done'); if(window.PlSound) PlSound.end();
+    setTimeout(function(){ if(pre.parentNode) pre.remove(); },600);
+  }
+  var iv=setInterval(function(){
+    if(idx<64 && idx<Math.ceil(target()/100*64)) visit();
+    if(idx>=64 && !finished){
+      finished=true; clearInterval(iv); pre.classList.add('ready'); if(window.PlSound) PlSound.finale();
+      var wait=Math.max(0,MIN_TIME-(performance.now()-start))+350;
+      setTimeout(close,wait);
+    }
+  },36);
+  visit();
+  window.addEventListener('load',function(){ loaded=true; });
+  setTimeout(function(){ if(document.body.contains(pre)) close(); },MAX_TIME+1500);
+})();
+</script>
+<!-- градиенты для векторного огонька (используются из js/home-deco.js) -->
+<svg id="mc-flame-defs" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="mcf-o" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb347"/><stop offset=".5" stop-color="#ff6a2b"/><stop offset="1" stop-color="#d42a22"/></linearGradient>
+  <linearGradient id="mcf-m" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe56e"/><stop offset="1" stop-color="#ff9a2e"/></linearGradient>
+  <linearGradient id="mcf-i" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf0"/><stop offset="1" stop-color="#ffe98a"/></linearGradient>
+  <radialGradient id="mcf-g" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff8a2e" stop-opacity=".6"/><stop offset="1" stop-color="#ff8a2e" stop-opacity="0"/></radialGradient>
+</defs></svg>
+<div class="phone-frame">
+
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-logo" src="assets/logo-mark.png?v=2" alt="maper.chess" width="34" height="34"
+           onerror="this.outerHTML='<span class=\'brand-glyph\' data-no-ic>♞</span>'">
+      <span class="brand-name">maper.chess</span>
+    </div>
+    <div class="topbar-stats">
+      <span class="pill pill-rank" id="player-rank">Lv. 1</span>
+      <span class="pill pill-streak" id="streak-pill"><i class="flame" data-flame></i><span id="streak-count">0</span></span>
+      <span class="pill pill-coins"><i class="mcoin"></i><span id="coin-count">0</span></span>
+      <button class="icon-btn icon-btn-ghost" id="btn-settings" data-i18n-title="aria.settings" data-i18n-aria="aria.settings" title="Settings"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true"><use href="#i-gear"/></svg></button>
+    </div>
+  </header>
+  <div class="xp-track" aria-hidden="true"><span class="xp-fill" id="xp-fill"></span></div>
+
+  <main class="views">
+
+    <section id="view-home" class="view active">
+      <div class="hero">
+        <h1 class="hero-title" data-i18n-html="hero.title">Learn chess by<br>playing, not reading.</h1>
+      </div>
+
+      <div class="streak-card sk" id="streak-card">
+        <div class="sk-top">
+          <div class="sk-emblem"><i class="flame" data-flame></i></div>
+          <div class="sk-main">
+            <div class="sk-count"><b id="streak-days">0</b><span id="streak-label"></span></div>
+            <p class="sk-note" id="streak-note"></p>
+          </div>
+          <button class="streak-freeze" id="streak-freeze" type="button"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true"><use href="#i-snow"/></svg> 0</button>
+        </div>
+        <div class="streak-week" id="streak-week"></div>
+      </div>
+
+      <a class="tg-card" id="tg-card" href="https://t.me/maperdev" target="_blank" rel="noopener noreferrer" aria-label="Telegram: @maperdev">
+        <span class="tg-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M21.4 3.6 2.9 10.7c-.9.35-.88 1.6.02 1.9l4.7 1.5 1.8 5.6c.24.7 1.1.9 1.6.4l2.6-2.4 4.7 3.5c.6.45 1.5.12 1.65-.62l3.2-15.2c.2-.9-.7-1.6-1.5-1.3zM9.7 13.3l8.4-5.9-6.6 7.1-.3 3z"/></svg>
+        </span>
+        <span class="tg-body">
+          <span class="tg-kicker"><span data-i18n="tg.kicker">Telegram channel</span> · @maperdev</span>
+          <span class="tg-title" data-i18n="tg.title">Follow the news here</span>
+        </span>
+        <span class="tg-go">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+    </section>
+
+    <section id="view-levels" class="view">
+      <h2 class="view-title" data-i18n="view.levels.title">Levels</h2>
+
+      <div class="mode-tabs">
+        <button class="mode-tab active" data-mode="games" data-i18n="mode.games">Games</button>
+        <button class="mode-tab" data-mode="tactics" data-i18n="mode.tactics">Tactics</button>
+      </div>
+
+      <div class="tier-tabs" id="tier-tabs-games">
+        <button class="tier-tab active" data-tier="beginner" data-i18n="tier.beginner">Novice</button>
+        <button class="tier-tab" data-tier="intermediate" data-i18n="tier.intermediate">Club Player</button>
+        <button class="tier-tab" data-tier="pro" data-i18n="tier.pro">Master</button>
+      </div>
+      <div class="tier-tabs" id="tier-tabs-tactics" hidden>
+        <button class="tier-tab" data-tier="mate1" data-i18n="tier.mate1">Mate in 1</button>
+        <button class="tier-tab active" data-tier="mate2" data-i18n="tier.mate2">Mate in 2</button>
+        <button class="tier-tab" data-tier="mate3" data-i18n="tier.mate3">Mate in 3</button>
+        <button class="tier-tab" data-tier="mate4" data-i18n="tier.mate4">Mate in 4</button>
+      </div>
+
+      <div class="tier-banner" id="tier-banner" hidden></div>
+
+      <div class="levels-grid" id="levels-grid"></div>
+
+      <button type="button" class="jump-current" id="jump-current" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2.6"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg>
+        <span id="jump-text"></span>
+        <i class="jump-dir" id="jump-dir">↓</i>
+      </button>
+    </section>
+
+    <section id="view-daily" class="view" aria-labelledby="daily-h">
+      <h2 class="view-title" id="daily-h" data-i18n="daily.title">Daily Challenge</h2>
+      <div id="daily-root"></div>
+    </section>
+
+    <section id="view-game" class="view" data-mode="level">
+      <div class="game-header">
+        <button class="icon-btn" id="btn-exit-game" aria-label="Back to levels">←</button>
+        <div class="game-titles">
+          <span class="game-tier" id="game-level-tier">—</span>
+          <span class="game-name" id="game-level-name">—</span>
+        </div>
+        <span class="gh-badge" id="game-badge" hidden></span>
+      </div>
+
+      <p class="game-status" id="game-status"><i class="gs-dot"></i><span id="game-status-text"></span></p>
+
+      <div class="gp-bar gp-opp" id="gp-opp">
+        <span class="gp-ava" id="gp-opp-ava"></span>
+        <div class="gp-who"><b id="gp-opp-name">—</b><small id="gp-opp-sub"></small></div>
+        <div class="gp-cap" id="gp-opp-cap"></div>
+        <span class="gp-think" id="gp-think" hidden><i></i><i></i><i></i></span>
+      </div>
+
+      <div class="board-wrap">
+        <div class="board" id="board"></div>
+      </div>
+
+      <div class="gp-bar gp-me" id="gp-me">
+        <span class="gp-ava gp-ava-me" id="gp-me-ava"></span>
+        <div class="gp-who"><b id="gp-me-name">—</b><small id="gp-me-sub"></small></div>
+        <div class="gp-cap" id="gp-me-cap"></div>
+      </div>
+
+      <div class="gp-goal" id="gp-goal" hidden></div>
+
+      <div class="game-controls">
+        <button class="ctrl-btn" id="btn-hint" data-i18n="btn.hint"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true"><use href="#i-bulb"/></svg> Hint</button>
+        <button class="ctrl-btn" id="btn-undo" data-i18n="btn.undo"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true"><use href="#i-undo"/></svg> Undo</button>
+        <button class="ctrl-btn ctrl-danger" id="btn-resign" data-i18n="btn.resign"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true"><use href="#i-flag"/></svg> Resign</button>
+      </div>
+    </section>
+
+    <section id="view-achievements" class="view">
+      <h2 class="view-title" data-i18n="view.achievements.title">Achievements</h2>
+      <div class="achievements-list" id="achievements-list"></div>
+    </section>
+
+    <section id="view-shop" class="view">
+      <h2 class="view-title" data-i18n="view.shop.title">Shop</h2>
+      <div class="shop-tabs">
+        <button class="shop-tab active" data-type="board" data-i18n="shop.tab.boards">Boards</button>
+        <button class="shop-tab" data-type="pieces" data-i18n="shop.tab.pieces">Piece sets</button>
+        <button class="shop-tab" data-type="boost" data-i18n="shop.tab.boost">Streak</button>
+      </div>
+      <div class="shop-grid" id="shop-grid"></div>
+    </section>
+
+    <section id="view-profile" class="view">
+      <h2 class="view-title" data-i18n="view.profile.title">Profile</h2>
+      <div id="profile-root"></div>
+    </section>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="home"><span><svg class="nv" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-home"/></svg></span><span data-i18n="nav.home">Home</span></button>
+    <button class="nav-btn" data-view="levels"><span><svg class="nv" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-levels"/></svg></span><span data-i18n="nav.levels">Levels</span></button>
+    <button class="nav-btn" data-view="daily"><span><svg class="nv" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-calendar-check"/></svg></span><span data-i18n="nav.daily">Daily</span></button>
+    <button class="nav-btn" data-view="achievements"><span><svg class="nv" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-medal"/></svg></span><span data-i18n="nav.achievements">Awards</span></button>
+    <button class="nav-btn" data-view="shop"><span><svg class="nv" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-bag"/></svg></span><span data-i18n="nav.shop">Shop</span></button>
+    <button class="nav-btn" data-view="profile"><span><svg class="nv" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-user"/></svg></span><span data-i18n="nav.profile">Profile</span></button>
+  </nav>
+
+  <div class="modal" id="result-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <button class="modal-x" id="modal-close" type="button" aria-label="Close"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true"><use href="#i-close"/></svg></button>
+      <h3 id="modal-title">Victory!</h3>
+      <p id="modal-sub">—</p>
+      <div id="modal-achievements"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="modal-retry">Play again</button>
+        <button class="btn btn-primary" id="modal-next" hidden>Next level →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="settings-modal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <button class="modal-x" id="settings-close" type="button" aria-label="Close"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true"><use href="#i-close"/></svg></button>
+      <h3 data-i18n="settings.title">Settings</h3>
+      <p class="settings-label" data-i18n="settings.language">Language</p>
+      <div class="lang-tabs">
+        <button class="lang-btn active" data-lang="en">English</button>
+        <button class="lang-btn" data-lang="ru">Русский</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost ctrl-danger" id="btn-reset" data-i18n="settings.resetProgress">Reset progress</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script src="js/chess-rules.js?v=1"></script>
+<script src="js/i18n.js"></script>
+<script src="js/data.js?v=3"></script>
+<script src="js/puzzles-more.js"></script>
+<script src="js/puzzles-14.js"></script>
+<script src="js/state.js?v=vl4"></script>
+<script src="js/chess-ai.js?v=2"></script>
+<script src="js/mate-solver.js"></script>
+<script src="js/board.js?v=5"></script>
+<script src="js/game.js?v=2"></script>
+<script src="js/ui.js?v=play4"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/cloud.js?v=app1"></script>
+<script src="js/nick.js?v=3"></script>
+<script src="js/extras.js?v=2"></script>
+<script src="js/pieces.js"></script>
+<script src="js/pieces-pro.js?v=1"></script>
+<script src="js/pieces-concepts.js"></script>
+<script src="js/profile.js?v=7"></script>
+<script src="js/leaderboard.js?v=app3"></script>
+<script src="js/friends.js?v=fr5"></script>
+<script src="js/fischer.js?v=2"></script>
+<script src="js/duels.js?v=8"></script>
+<script src="js/trade.js?v=1"></script>
+<script src="js/hints.js?v=rl1"></script>
+<script src="js/lessons-more.js?v=1"></script>
+<script src="js/lessons.js?v=10"></script>
+<script src="js/trainer.js?v=1"></script>
+<script src="js/rewards.js?v=7"></script>
+<script src="js/village-3d.js?v=4"></script>
+<script src="js/village.js?v=8"></script>
+<script src="js/village-game.js?v=3"></script>
+<script src="js/ranks.js?v=5"></script>
+<script src="js/fx.js?v=3"></script>
+<script src="js/notify.js?v=3"></script>
+<script src="js/navicons.js?v=5"></script>
+<script src="js/sfx.js?v=5"></script>
+<script src="js/share.js?v=1"></script>
+<script src="js/daily.js?v=2"></script>
+<script src="js/progress-plus.js?v=1"></script>
+<script src="js/home-plus.js?v=3"></script>
+<script src="js/nav.js?v=7"></script>
+<script src="js/settings-ext.js?v=3"></script>
+<script src="js/app.js"></script>
+<script src="js/home-deco.js?v=3"></script>
+<script src="js/brand-home.js?v=1"></script>
+<script src="js/streak-up.js?v=1"></script>
+<script src="js/admin-ops.js?v=1"></script>
+<script src="js/boost.js?v=1"></script>
+<script src="js/analysis.js?v=3"></script>
+<script src="js/think.js?v=2"></script>
+</body>
+</html>
